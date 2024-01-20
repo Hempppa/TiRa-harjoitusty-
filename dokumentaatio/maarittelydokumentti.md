@@ -1,4 +1,4 @@
-## Alkeellinen määrittelydokumentti (tulee varmaan täydentymään projektin edetessä)
+## Määrittelydokumentti (tulee varmaan täydentymään projektin edetessä)
 ### Mitä ohjelmointi kieliä käytän
 Vain pythonilla on koko ohjelmistotuotanto prosessi tuttu ja koska tavoitteena on saada toimiva ohjelma valmiiksi niin en usko että on aika opetella muita kieliä, joskus vuosia sitten kävin kuitenkin javascript perusteet kurssin, että ehkä hätätilanteessa voin arvioida. 
 
