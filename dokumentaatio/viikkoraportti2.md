@@ -1,5 +1,5 @@
 ### Mitä olen tehnyt
-Itse shakkisovellus on nyt mielestäni valmis, bugeja saattaa kyllä vielä löytyä sillä testausta en kerennyt aloittaa. Koodin dokumentointi on mielestäni nyt ajan tasalla.
+Itse shakkisovellus on nyt mielestäni valmis, bugeja saattaa kyllä vielä löytyä sillä testausta en kerennyt aloittaa. Koodin dokumentointi on mielestäni nyt ajan tasalla. Tällä viikolla meni noin 15h työhön. 
 
 ### Miten ohjelma on edistynyt
 Vähän hitaasti, shakkisääntöjen implementointi oli yllättävän työlästä enkä kerennyt mm. yksikkötestausta suorittamaan ollenkaan.
