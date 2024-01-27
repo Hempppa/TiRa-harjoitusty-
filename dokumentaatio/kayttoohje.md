@@ -1,4 +1,3 @@
-#Shakkipeli
 ## Riippuvuuksien asentaminen
 Hetkellä en ole vielä ottanut käyttöön poetryä tai vastaavaa. Virtuaaliympäristön voi alustaa ja riippuvuudet voi asentaa juurikansiossa seuraavilla komennoilla (ainakin linux järjestelmässä)
 
