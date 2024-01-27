@@ -1,0 +1,9 @@
+pylint
+
+pytest
+
+coverage
+
+invoke
+
+poetry

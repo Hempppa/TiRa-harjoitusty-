@@ -1,3 +1,4 @@
+#ns config asetukset, tästä voi pääasiassa vain aloitusvuoron vaihtaa, uusien nappuloidne tai pelilaudan koon vaihtaminen tässä versiossa rikkoo pelin
 Pelilauta = [["R","H","B","Q","K","B","H","R"],
             ["P","P","P","P","p","P","P","P"],
             ["-","-","-","-","-","-","-","-"],
@@ -10,9 +11,11 @@ pelinappulat = [["p","r","h","b","q","k"],["P","R","H","B","Q","K"]]
 alkuvuoro = 0
 
 
-#!!! Puuttuu vielä mahdolliset erikoisliikkeet, koodin laadun tarkistaminen, yksikkötestaaminen, kunnollinen koodin dokumentointi ja tietenkin itse shakkibotti
+#!!! Puuttuu vielä mahdolliset erikoisliikkeet, koodin laadun tarkistaminen, yksikkötestaaminen ja tietenkin itse shakkibotti
 
 def alku():
+    """Funktion kutsuminen käynnistää sovelluksen. Funktio kutsuu kaksin tai yksinpeliin liittyvän funktion.
+    """
     print("Pelistä voi poistua kirjoittamalla quit")
     print("Peli ei tunnista minkään näköisiä erikoissiirtoja")
     print("vain kaksinpeli toimii hetkellä")
@@ -28,8 +31,15 @@ def alku():
                 break
 
 def kaksinpeli():
+    """Ainoa toimiva pelimuoto, missä kaksi pelaajaa pelaa toisiaan vastaan. Tämä funktio vain vaihtaa vuoroja ja tulostaa pelilaudan tilanteen
+
+    Returns:
+        String: voi palauttaa vain 'quit' jolloin pelin suoritus pysähtyy. Jos mitään ei palauteta niin peli jatkuu
+    """
     vuoro = alkuvuoro
-    Pelitilanne = Pelilauta
+    Pelitilanne = []
+    for rivi in Pelilauta:
+        Pelitilanne.append(rivi[:])
     while True:
         print()
         print("  ----------------------------")
@@ -65,6 +75,15 @@ def kaksinpeli():
             print("Laiton siirto")
 
 def matti(Pelitilanne, vuoro):
+    """Funktio päättelee pelitilanteen ja vuoron pohjalta 'onko_shakki' funktiota hyödyntäen pitäisikö pelin loppua.
+
+    Args:
+        Pelitilanne List: Pelilauta tapainen lista joka edustaa hetkistä pelitilannetta
+        vuoro int: joko 0 jolloin on pieniä kirjaimia edustavan pelaajan vuoro ja 1 jos toisen pelaajan.
+
+    Returns:
+        Boolean: palauttaa True jos peli on loppunut ja False jos ei
+    """
     mahdolliset = kaikki_lailliset_siirrot(Pelitilanne, vuoro, False)
     uusittu = []
     for siirto in mahdolliset:
@@ -77,6 +96,18 @@ def matti(Pelitilanne, vuoro):
     return False, uusittu
 
 def laillinen_siirto(Pelitilanne, siirto, vuoro):
+    """Tarkistaa syötetyn siirron. Oikean muodon lisäksi, siirron pitää olla mahdollista suorittaa kyseisellä 
+    pelinappulalla (tarkistus kaikki_lailliset_siirrot funktion listaa vastaan) ja jos on shakissa niin siirron
+    pitää pistää pois shakista.
+
+    Args:
+        Pelitilanne list: Pelilauta tapainen listojen lista hetkisestä pelitilanteesta
+        siirto string: Siirron pitää olla muotoa alku x, alku y, loppu x, loppu y, eli esim. 'd7d5'. Pitää myös poistua mahdollisesta shakista
+        vuoro int: kenen vuoro, 0 tai 1 arvona
+
+    Returns:
+        _type_: _description_
+    """
     if siirto[0] not in ("a","b","c","d","e","f","g","h") or siirto[2] not in ("a","b","c","d","e","f","g","h"):
         return False
     if siirto[1] not in ("1","2","3","4","5","6","7","8") or siirto[3] not in ("1","2","3","4","5","6","7","8"):
@@ -90,6 +121,15 @@ def laillinen_siirto(Pelitilanne, siirto, vuoro):
     return True
     
 def tee_siirto(Pelitilanne, siirto):
+    """Yksinkertaisesti siirtää jotain pelinappulaa
+
+    Args:
+        Pelitilanne list: Pelilauta tapainen listojen lista hetkisestä pelitilanteesta
+        siirto string: Pelaajan tekemä siirto
+
+    Returns:
+        string: siirrettyyn ruutuun sisältävä pelinappula, tyhjään ruutuun siirtyessä siis esim. '-'
+    """
     mista_x = ord(siirto[0])-97
     mista_y = int(siirto[1])-1
     mihin_x = ord(siirto[2])-97
@@ -100,6 +140,13 @@ def tee_siirto(Pelitilanne, siirto):
     return poistettu
 
 def peru_siirto(Pelitilanne, siirto, nappula):
+    """Palauttaa siirron tekemät muutokset
+
+    Args:
+        Pelitilanne list: Pelilauta tapainen listojen lista hetkisestä pelitilanteesta
+        siirto string: Siirto jonka perutaan
+        nappula string: Nappula joka ruudun paikalla ennen oli, esim. tyhjän ruudun ollessa '-'
+    """
     mista_x = ord(siirto[0])-97
     mista_y = int(siirto[1])-1
     mihin_x = ord(siirto[2])-97
@@ -108,6 +155,16 @@ def peru_siirto(Pelitilanne, siirto, nappula):
     Pelitilanne[mihin_y][mihin_x] = nappula
 
 def onko_shakki(Pelitilanne, vuoro):
+    """Tarkistaa onko shakki, eli voiko vuorossa olevan pelaajan kuninkaan ruutuun siirtyä millään 
+    vastustajan napilla (tarkistus siis taas kaikki_lailliset_siirrot funktion listaa vastaan)
+
+    Args:
+        Pelitilanne list: Pelilauta tapainen listojen lista hetkisestä pelitilanteesta
+        vuoro int: kenen vuoro, 0 tai 1 arvona
+
+    Returns:
+        boolean: True jos on shakki, False jos ei ole
+    """
     kingi = pelinappulat[vuoro][5]
     if vuoro == 0:
         vastapuoli = kaikki_lailliset_siirrot(Pelitilanne, 1, True)
@@ -123,6 +180,18 @@ def onko_shakki(Pelitilanne, vuoro):
     return False
     
 def kaikki_lailliset_siirrot(Pelitilanne, vuoro, automaatti):
+    """Pelin toiminnallisuuden tärkein funktio, laskee listaan kaikki vuorossa olevan pelaajan 'mahdolliset' siirrot.
+    Funktio ei kuitenkaan huomioi shakki tilannetta, joka tarkistetaan 'laillinen_siirto' funktiolla. Tämän funktion
+    takia myöskään pelilaudan kokoa ei voi muuttaa sillä laudan rajat on hetkellä kovakoodattu siirtoihin.
+
+    Args:
+        Pelitilanne list: Pelilauta tapainen listojen lista hetkisestä pelitilanteesta
+        vuoro int: kenen vuoro, 0 tai 1 arvona
+        automaatti boolean: True jos lasketaan shakkibotille, False muuten. Nopeampi laskenta joka ei pitäisi shakkibotin toimintaa haitata.
+
+    Returns:
+        list : lista kaikista laillisista siirroista. Siirrot muodossa 'd7d5'. Tämä saattaa muuttua jos tarvitsen lisätehoa shakkibotin laskentaan
+    """
     siirrot = []
     omat = pelinappulat[vuoro]
     for y in range(8):
@@ -353,6 +422,8 @@ def kaikki_lailliset_siirrot(Pelitilanne, vuoro, automaatti):
     return siirrot
 
 def yksinpeli():
+    """ei hetkellä ole shakkibottia
+    """
     return
 
 alku()
