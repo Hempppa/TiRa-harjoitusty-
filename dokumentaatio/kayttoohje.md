@@ -16,8 +16,6 @@ Sovelluksella on hetkellä (ehkä myös pysyvästi) vain tekstikäyttöliittymä
 
 Jonka jälkeen sovellus kysyy pelataanko yksin shakkibottia (jota en vielä ole ohjelmoinut peliin) vastaan "1P" vai kaksinpeliä "2P" (lokaalisti eli samalla koneella vuorotellen vain).
 
-	[Kuva tästä kun kerkee]
-
 Siirtoja syötetään muodossa alku x, alku y, loppu x, loppu y. Eli esim. siirto ruudulta e2 ruutuun e4 on "e2e4". Myöhemmin saattaa tulla erikoisempia siirtoja peliin mutta hetkellä mm. tornitus, ohestalyönti, sotilaan korotus eivät ole pelissä.
 
 Pelistä voi aina poistua syöttämällä "quit".
