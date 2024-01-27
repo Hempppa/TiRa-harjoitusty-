@@ -6,7 +6,7 @@ Vähän hitaasti, shakkisääntöjen implementointi oli yllättävän työläst�
 
 ### Mitä opin
 On yllättävän työlästä päätellä mahdollisia siirtoja shakissa. Esim. kuningattarella käytännössä vissiin joutuu käymään jokaisella kahdeksalla akselilla yksi kerrallaan kaikki ruudut läpi kunnes tulee pelinappi tai laudan reuna vastaan.
-Myöskin se, että peli päättyy jo shakki-mattiin ja itse kuninkaan vieminen on mahdotonta ovat aiheuttaneet paljon päänsärkyä.
+Myöskin se, että peli päättyy jo shakki-mattiin ja itse kuninkaan vieminen on mahdotonta ovat aiheuttaneet paljon vaivaa.
 
 ### Epäselvyyksiä/vaikeuksia
 Luin viime palautuksen ja jäin miettimään miten shakkinappuloiden sijointia kannattaisi parhaiten arvioida jos niitä kannattaa ollenkaan, sillä shakkibotti arvioi toivottavasti ainakin peliä niin kauas, että pystyy myöhemmin lähestyessä 
