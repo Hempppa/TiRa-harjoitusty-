@@ -1,6 +1,6 @@
 #ns config asetukset, tästä voi pääasiassa vain aloitusvuoron vaihtaa, uusien nappuloidne tai pelilaudan koon vaihtaminen tässä versiossa rikkoo pelin
 Pelilauta = [["R","H","B","Q","K","B","H","R"],
-            ["P","P","P","P","p","P","P","P"],
+            ["P","P","P","P","P","P","P","P"],
             ["-","-","-","-","-","-","-","-"],
             ["-","-","-","-","-","-","-","-"],
             ["-","-","-","-","-","-","-","-"],
@@ -8,7 +8,9 @@ Pelilauta = [["R","H","B","Q","K","B","H","R"],
             ["p","p","p","p","p","p","p","p"],
             ["r","h","b","q","k","b","h","r"]]
 pelinappulat = [["p","r","h","b","q","k"],["P","R","H","B","Q","K"]]
-alkuvuoro = 0
+alkuvuoro = 0 #kaksinpelissä kumpi puoli aloittaa
+laskenta_syvyys = 5 #Kuinka kauas tekoäly laskee siirtoja
+aly = False #Käytetäänkö tekoalya(), jos ei niin tekoalyb(). a harkitsee pienemmän määrän siirtoja, mutta b laskee nopeammin
 
 
 #!!! Puuttuu vielä mahdolliset erikoisliikkeet, koodin laadun tarkistaminen, yksikkötestaaminen ja tietenkin itse shakkibotti
@@ -51,6 +53,18 @@ def kaksinpeli():
         print("  ----------------------------")
         print("     a"," b"," c"," d"," e"," f"," g"," h")
         print()
+        if False:
+            if aly == True:
+                siirto = tekoalya(Pelitilanne, laskenta_syvyys, -50000, 50000, vuoro, (0, ""), vuoro)
+            else:
+                siirto = tekoalyb(Pelitilanne, laskenta_syvyys, -50000, 50000, vuoro, vuoro)
+            print("Pelitilanne arvio: ", siirto[0]/100)
+            temp2 = round((siirto[0] + 50000)/5000)
+            print(chr(9633)*temp2 + chr(9632)*(10-temp2))
+        arvio = arvioi_tilanne(Pelitilanne, [], vuoro)
+        print("Pelikenttä arvio: ", arvio/100)
+        temp = round((arvio + 50000)/5000)
+        print(chr(9633)*temp + chr(9632)*(10-temp))
         print("Pelaajan", vuoro+1, "vuoro")
         tilanne = matti(Pelitilanne, vuoro)
         if tilanne[0]:
@@ -64,7 +78,7 @@ def kaksinpeli():
         else:
             print("mahdolliset siirrot ", tilanne[1])
         siirto = input("Syötä siirto: ")
-        if siirto == "quit":
+        if siirto == "quit" or siirto == "q":
             return "quit"
         if laillinen_siirto(Pelitilanne, siirto, vuoro):
             if vuoro == 1:
@@ -178,6 +192,79 @@ def onko_shakki(Pelitilanne, vuoro):
         if siirto[2:] == sijainti:
             return True
     return False
+
+def arvioi_tilanne(Pelitilanne, siirrot=[], vuoro=0):
+    """Funktio arvioimaan pelitilannetta, funktio on kevyt ja palauttaa siis vain tämän hetkisen pelitilanteen arvion, eli ei osaa mm. ennustaa shakkia. 
+    Funktio on hetkellä myös aika yksinkertainen, se ottaa huomioon vain materiaalin, mahdollisten siirtojen ja huonossa asemassa olevien sotilaiden määrät.
+
+    Args:
+        Pelitilanne list: Pelilauta tapainen listojen lista hetkisestä pelitilanteesta
+        siirrot (list, optional): Jos tekoäly haluaa arvion niin se on jo laskenut oman tilanteen mahdolliset siirrot jotka löytyy tästä. Defaults to [].
+        vuoro (int, optional): Kenen vuorolla tekoäly arvioi. Defaults to 0.
+
+    Returns:
+        int: palauttaa arvion pelitilanteesta, plussaa jos pienillä kirjaimilla on voittamassa, miinusta jos häviämässä. 
+    """
+    materiaalipaino = 1
+    sotilaspaino = 0.5
+    siirtojapaino = 10
+    doubled_p = set()
+    doubled_P = set()
+    isolated_p = 0
+    isolated_P = 0
+    blocked_p = 0
+    blocked_P = 0
+    materiaali = 0
+    for x in range(8):
+        for y in range(8):
+            if Pelitilanne[y][x] == "-":
+                continue
+            elif Pelitilanne[y][x] == "p":
+                materiaali += 100
+                doubled_p.add(x)
+                if not ((x > 0 and Pelitilanne[y-1][x-1] == "p") or (x < 7 and Pelitilanne[y-1][x+1] == "p")):
+                    isolated_p += 100
+                if y < 7 and Pelitilanne[y+1][x] != "-":
+                    blocked_p += 100
+            elif Pelitilanne[y][x] == "P":
+                materiaali -= 100
+                doubled_P.add(x)
+                if not ((x > 0 and Pelitilanne[y-1][x-1] == "P") or (x < 7 and Pelitilanne[y-1][x+1] == "P")):
+                    isolated_P += 100
+                if y > 0 and Pelitilanne[y-1][x] != "-":
+                    blocked_P += 100
+            elif Pelitilanne[y][x] == "b":
+                materiaali += 300
+            elif Pelitilanne[y][x] == "B":
+                materiaali -= 300
+            elif Pelitilanne[y][x] == "h":
+                materiaali += 300
+            elif Pelitilanne[y][x] == "H":
+                materiaali -= 300
+            elif Pelitilanne[y][x] == "r":
+                materiaali += 500
+            elif Pelitilanne[y][x] == "R":
+                materiaali -= 500
+            elif Pelitilanne[y][x] == "q":
+                materiaali += 900
+            elif Pelitilanne[y][x] == "Q":
+                materiaali -= 900
+            elif Pelitilanne[y][x] == "k":
+                materiaali += 20000
+            elif Pelitilanne[y][x] == "K":
+                materiaali -= 20000
+    if len(siirrot) == 0:
+        siirrotp = kaikki_lailliset_siirrot(Pelitilanne, 0, True)
+        siirrotP = kaikki_lailliset_siirrot(Pelitilanne, 1, False)
+    else:
+        if vuoro == 0:
+            siirrotp = siirrot
+            siirrotP = kaikki_lailliset_siirrot(Pelitilanne, 1, False)
+        else:
+            siirrotp = kaikki_lailliset_siirrot(Pelitilanne, 0, True)
+            siirrotP = siirrot
+    arvio = materiaali*materiaalipaino - (len(doubled_P)*100-len(doubled_p)*100+isolated_P-isolated_P+blocked_p-blocked_p)*sotilaspaino + (len(siirrotp)-len(siirrotP))*siirtojapaino
+    return arvio
     
 def kaikki_lailliset_siirrot(Pelitilanne, vuoro, automaatti):
     """Pelin toiminnallisuuden tärkein funktio, laskee listaan kaikki vuorossa olevan pelaajan 'mahdolliset' siirrot.
@@ -422,8 +509,180 @@ def kaikki_lailliset_siirrot(Pelitilanne, vuoro, automaatti):
     return siirrot
 
 def yksinpeli():
-    """ei hetkellä ole shakkibottia
-    """
     return
+    """Yksinpeli shakkibottia vastaan, en tiedä toimiiko hyvin ollenkaan
 
-alku()
+    Returns:
+        string: palauttaa 'quit' jos se jossain kohtaa konsoliin vastataan
+    """
+    vuoro = alkuvuoro
+    Pelitilanne = []
+    for rivi in Pelilauta:
+        Pelitilanne.append(rivi[:])
+    while True:
+        valinta = input("Aloittaako pelaaja [y] vai ei [n]? ")
+        if valinta == "quit" or valinta == "q":
+            return "quit"
+        elif valinta == "y" or valinta == "Y":
+            pelaaja = 0
+            aly_vuoro = 1
+            break
+        elif valinta == "n" or valinta == "N":
+            pelaaja = 1
+            aly_vuoro = 0
+            break
+    siirto = (0, "")
+    while True:
+        print()
+        print("  ----------------------------")
+        for y in range(8):
+            rivi = str(y+1) + " | "
+            for x in range(8):
+                rivi += " " + Pelitilanne[y][x] + " "
+            print(rivi + " | ")
+        print("  ----------------------------")
+        print("     a"," b"," c"," d"," e"," f"," g"," h")
+        print()
+        arvio = arvioi_tilanne(Pelitilanne, [], vuoro)
+        print("Pelikenttä arvio: ", arvio/100)
+        temp = round((arvio + 50000)/5000)
+        print(chr(9633)*temp + chr(9632)*(10-temp))
+        print("Pelitilanne arvio: ", siirto[0]/100)
+        temp2 = round((siirto[0] + 50000)/5000)
+        print(chr(9633)*temp2 + chr(9632)*(10-temp2))
+
+        print("Pelaajan", vuoro+1, "vuoro")
+        tilanne = matti(Pelitilanne, vuoro)
+        if tilanne[0]:
+            print()
+            if vuoro == 0:
+                print("Tekoäly voitti!!!")
+            else:
+                print("Pelaaja voitti!!!")
+            print()
+            return
+        else:
+            print("mahdolliset siirrot ", tilanne[1])
+        if vuoro == pelaaja:
+            siirtop = input("Syötä siirto: ")
+            if siirtop == "quit" or siirtop == "q":
+                return "quit"
+            if laillinen_siirto(Pelitilanne, siirtop, vuoro):
+                if vuoro == 1:
+                    vuoro = 0
+                else:
+                    vuoro = 1
+            else:
+                print("Laiton siirto")
+        else:
+            if aly == True:
+                siirto = tekoalya(Pelitilanne, laskenta_syvyys, -50000, 50000, aly_vuoro, (0, ""), aly_vuoro)
+            else:
+                siirto = tekoalyb(Pelitilanne, laskenta_syvyys, -50000, 50000, aly_vuoro, aly_vuoro)
+            if laillinen_siirto(Pelitilanne, siirto[1], aly_vuoro):
+                if vuoro == 1:
+                    vuoro = 0
+                else:
+                    vuoro = 1
+            else:
+                print("Tekoäly rikki!!! Sori, laita palautetta jossain jotenkin, mieluusti pelitilanteen kera")
+
+
+def tekoalya(Pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, ekavuoro):
+    """Rekursiivinen funktio laskemaan paras siirto kun tekoälyn siirrolla tilanteen arvo maksimoidaan ja pelaajan vuorolla minimoidaan (shakkibotin suhteen).
+    Eroaa toisesta tekoäly funktiosta sillä että laskee mahdollisten siirtojen arvot ensin, jolloin todennäköisesti karsitaan enemmän siirtoja ja ehkä arviointi on
+    nopeampaa.
+
+    Args:
+        Pelitilanne list: Pelilauta tapainen listojen lista hetkisestä pelitilanteesta
+        syvyys int: funktion laskentasyvyys, peliä ei tietenkään keretä loppuun asti laskemaan, joten näin monen siirron jälkeen lopetetaan
+        alpha int: arvo jonka mukaan karsitaan vissiin pelaajalle epäotimaaliset siirrot
+        beta int: arvo jolla karsitaan vissiin tekoälylle epäoptimaaliset siirrot 
+        vuoro int: kenen vuoro, 0 tai 1 arvona
+        edellinen_siirto tuple(int, string): sisältää edellisen (tähän pelitilanteeseen päästävän) siirron ja sille lasketun arvon
+
+    Returns:
+        tuple(int, string): palauttaa tuplen joka kuvailee parasta siirtoa ja sen arvoa
+    """
+    if syvyys == 0:
+        return edellinen_siirto
+    siirrot = kaikki_lailliset_siirrot(Pelitilanne, vuoro, True)
+    arviot = []
+    if ekavuoro == 0:
+        for siirto in siirrot:
+            nappula = tee_siirto(Pelitilanne, siirto)
+            arviot.append((arvioi_tilanne(Pelitilanne, siirrot, vuoro), siirto))
+            peru_siirto(Pelitilanne, siirto, nappula)
+    else:
+        for siirto in siirrot:
+            nappula = tee_siirto(Pelitilanne, siirto)
+            arviot.append((arvioi_tilanne(Pelitilanne, siirrot, vuoro)*(-1), siirto))
+            peru_siirto(Pelitilanne, siirto, nappula)
+    arviot.sort(reverse=True)
+    if vuoro == 0:
+        arvo = (-300,"")
+        for siirto in arviot:
+            nappula = tee_siirto(Pelitilanne, siirto[1])
+            temp = tekoalya(Pelitilanne, syvyys-1, alpha, beta, 1, (siirto[0], siirto[1]), ekavuoro)
+            if temp[0] > arvo[0]:
+                arvo = (temp[0], siirto[1])
+            peru_siirto(Pelitilanne, siirto[1], nappula)
+            alpha = max(arvo[0], alpha)
+            if arvo[0] >= beta:
+                break
+        return arvo
+    else:
+        arvo = (300, "")
+        for siirto in arviot:
+            nappula = tee_siirto(Pelitilanne, siirto[1])
+            temp = tekoalya(Pelitilanne, syvyys-1, alpha, beta, 0, (siirto[0], siirto[1]), ekavuoro)
+            if temp[0] < arvo[0]:
+                arvo = (temp[0], siirto[1])
+            peru_siirto(Pelitilanne, siirto[1], nappula)
+            beta = max(arvo[0], beta)
+            if arvo[0] <= alpha:
+                break
+        return arvo
+    
+def tekoalyb(Pelitilanne, syvyys, alpha, beta, vuoro, ekavuoro):
+    """Yksinkertaisempi versio toisesta tekoälystä, huonompi karsimaan valintoja, mutta nopeampi laskemaan, sillä vain siirtojen ketjun lopussa oleva tilanne arvioidaan
+
+    Args:
+        samat kuin edellisessä, vain 'edellinen_siirto' puuttuu
+
+    Returns:
+        tuple(int, string): palauttaa tuplen joka kuvailee parasta siirtoa ja sen arvoa
+    """
+    if syvyys == 0:
+        if ekavuoro == 0:
+            return arvioi_tilanne(Pelitilanne, siirrot, vuoro), ""
+        else:
+            return arvioi_tilanne(Pelitilanne, siirrot, vuoro)*(-1), ""
+    siirrot = kaikki_lailliset_siirrot(Pelitilanne, vuoro, True)
+    if vuoro == 0:
+        arvo = (-300,"")
+        for siirto in siirrot:
+            nappula = tee_siirto(Pelitilanne, siirto[1])
+            temp = tekoalyb(Pelitilanne, syvyys-1, alpha, beta, 1, ekavuoro)
+            if temp[0] > arvo[0]:
+                arvo = (temp[0], siirto[1])
+            peru_siirto(Pelitilanne, siirto[1], nappula)
+            alpha = max(arvo[0], alpha)
+            if arvo[0] >= beta:
+                break
+        return arvo
+    else:
+        arvo = (300, "")
+        for siirto in siirrot:
+            nappula = tee_siirto(Pelitilanne, siirto[1])
+            temp = tekoalyb(Pelitilanne, syvyys-1, alpha, beta, 0, ekavuoro)
+            if temp[0] < arvo[0]:
+                arvo = (temp[0], siirto[1])
+            peru_siirto(Pelitilanne, siirto[1], nappula)
+            beta = max(arvo[0], beta)
+            if arvo[0] <= alpha:
+                break
+        return arvo
+
+if __name__ == "__main__":
+    alku()
