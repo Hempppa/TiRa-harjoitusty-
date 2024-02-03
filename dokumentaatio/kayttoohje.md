@@ -21,13 +21,16 @@ Siirtoja syötetään muodossa alku x, alku y, loppu x, loppu y. Eli esim. siirt
 Pelistä voi aina poistua syöttämällä "quit".
 
 ## Testaaminen ja laaduntarkastus
-Hetkellä ohjelmassa ei ole testejä joten testikattavuus on 0%. Joskus tulevaisuudessa varmaan kirjoitan testit app_test.py tiedostoon, jolloin testauksen voi suorittaa komennolla (taas linux):
+Testit löytyvät app_test.py tiedostosta, testauksen voi suorittaa komennolla:
 
-	pytest	.
+	pytest
 
-Ja kattavuusraportin saa komennolla:
+Ja kattavuusraportin saa komennoilla:
 
-	coverage run -m pytest .
+	coverage run -m pytest
+ 	coverage html
+
+Jolloin htmlcov/index.html löytyy tarkka jäsentely testikattavuudesta
 
 Koodin laatua voi tarkastella pylintillä komennolla:
 
