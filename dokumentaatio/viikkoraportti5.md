@@ -2,7 +2,7 @@
 En mitään varsin näyttävää. Pari pientä bugia korjasin ja tein yksikkötestejä lisää sekä korjasin vähän pylintillä koodin laatua
 
 ### Miten ohjelma on edistynyt
-Jos bugeja ei laasketa niin varsinaisen ohjelman toimivuuden kannalta en ole tehnyt mitää uutta. Viime viikolla unohdin pushata muutokset gitiin joten 
+Jos bugeja ei laasketa niin varsinaisen ohjelman toimivuuden kannalta en ole tehnyt mitää uutta. Viime viikolla unohdin pushata muutokset gitiin joka vähän harmittaa sillä ensimmäisen vertaisarvioijan työ oli vähän turha, sillä suurin osa huomioista oli viikko4 versiossa jo korjattu.
 
 ### Mitä opin
 Kuinka helposti huolimattomuus virheitä koodiin ilmestyy. Yksi bugi joka ilmeni oli että kuningas ei voinut liikkua suoraan ylöspäin jos se oli 2. rivillä, sillä siirtoja tarkistaessa ehdon x > 0 sijaan oli x > 1.
