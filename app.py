@@ -478,7 +478,7 @@ def yksinpeli():
         print("mahdolliset siirrot ", tilanne[1])
         if vuoro == pelaaja:
             siirtop = input("Syötä siirto: ")
-            if siirtop ("quit", "q"):
+            if siirtop in ("quit", "q"):
                 return "quit"
             if siirtop in tilanne[1]:
                 tee_siirto(pelitilanne, siirtop)
@@ -504,7 +504,7 @@ def yksinpeli():
                     siirto = tekoalyb_aloittaa(pelitilanne, LASKENTA_SYVYYS, -50000, 50000, aly_vuoro, "")
             oikea_muoto = chr(siirto[1][0]+97) + str(siirto[1][1]+1) + chr(siirto[1][2]+97) + str(siirto[1][3]+1)
             loppu_aika = time.time()
-            print("Valmis! siirto; ", siirto)
+            print("Valmis! siirto; ", -1*siirto[0], siirto[1])
             print("Aikaa miettimiseen kului: ", loppu_aika-alku_aika, "s")
             if oikea_muoto in tilanne[1]:
                 tee_siirto(pelitilanne, oikea_muoto)
@@ -552,7 +552,7 @@ def kaksinpeli():
         else:
             print("mahdolliset siirrot ", tilanne[1])
         siirto = input("Syötä siirto: ")
-        if siirto == "quit" or siirto == "q":
+        if siirto in ("quit", "q"):
             return "quit"
         if siirto in tilanne[1]:
             tee_siirto(pelitilanne, siirto)
