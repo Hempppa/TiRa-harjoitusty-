@@ -11,4 +11,4 @@ En hirveästi mitään, testien kirjoittaminen on tylsää. Sen kyllä myös sai
 On ollut kiireinen/väsyttävä viikko enkä kerennyt lukemaan palautetta hirveän ajoissa. Voin kohta vielä selvittää telegrammin ja laittaa viestiä, mutta en tiedä kuin montaa muutosta kerkeän tehdä. 
 
 ### Mitö aion tehdä
-Viimeistelyä, varmaan hajotan koodin useampaan tiedostoon ja tutkin mahdollisia parannuksia tekoälyn funktioiden nopeuttamiseen ja heurestisen arvion parantamiseen, mutta nämä kyllä menevät vähän vastakkain missä parempi arvio on hitaampi. 
+Viimeistelyä, varmaan hajotan koodin useampaan tiedostoon ja tutkin mahdollisia parannuksia tekoälyn funktioiden nopeuttamiseen ja heurestisen arvion parantamiseen, mutta nämä kyllä menevät vähän vastakkain missä parempi arvio on hitaampi. Saatan myös lisätä peliin kuuluvia erikoisliikkeitä, mutta aika alkaa kyllä käymään vähiin.
