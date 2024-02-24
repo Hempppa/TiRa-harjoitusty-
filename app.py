@@ -17,17 +17,15 @@ PELINAPPULAT = [[chr(9817),chr(9814),chr(9816),chr(9815),chr(9813),chr(9812)],
 
 ALKUVUORO = 0 #kaksinpelissä kumpi puoli aloittaa
 LASKENTA_SYVYYS = 4 #Kuinka kauas tekoäly laskee siirtoja, kannattaa varmaan pitää välillä 3 -- 5
-ALY = True #Käytetäänkö tekoalya(), jos ei niin tekoalyb(). a on todennäköisesti aina nopeampi
 
-#!!! Puuttuu vielä mahdolliset erikoisliikkeet, koodin laadun tarkistaminen, yksikkötestaaminen
+#!!! Puuttuu vielä mahdolliset erikoisliikkeet
 
 def alku():
     """Funktion kutsuminen käynnistää sovelluksen. Funktio kutsuu kaksin tai yksinpeliin liittyvän funktion.
     """
     print("Pelistä voi poistua kirjoittamalla quit")
     print("Peli ei tunnista minkään näköisiä erikoissiirtoja")
-    print("En tiedä miksi, mutta värit ovat väärinpäin eikä ole aikaa vaihtaa")
-    print("Tekoälyä vastaan pelatessa voi hetkellä vain pelaaja aloittaa")
+    print("hetkellä jos tekoäly aloittaa sillä kestää merkittävästi kauemmin laskea siirto")
     while True:
         valinta = input("Kaksinpeli (2p) vai tekoalya vastaan (1p): ")
         if valinta in ("quit", "q"):
@@ -58,10 +56,7 @@ def matti(pelitilanne, vuoro):
         kone_peru(pelitilanne, siirto, poistettu)
     if len(uusittu) == 0:
         return True, uusittu
-    lopullinen = []
-    for siirto in uusittu:
-        lopullinen.append(chr(siirto[0]+97) + str(siirto[1]+1) + chr(siirto[2]+97) + str(siirto[3]+1))
-    return False, lopullinen
+    return False, uusittu
 
 def tee_siirto(pelitilanne, siirto):
     """Yksinkertaisesti siirtää jotain pelinappulaa
@@ -126,7 +121,7 @@ def onko_shakki(pelitilanne, vuoro):
             return True
     return False
 
-def arvioi_tilanne(pelitilanne, siirrot=[], vuoro=0):
+def arvioi_tilanne(pelitilanne, siirrot=None, vuoro=0):
     """Funktio arvioimaan pelitilannetta, funktio on kevyt ja palauttaa siis vain tämän hetkisen pelitilanteen arvion,
     eli ei osaa mm. ennustaa shakkia. Funktio on hetkellä myös aika yksinkertainen, se ottaa huomioon vain materiaalin,
     mahdollisten siirtojen ja huonossa asemassa olevien sotilaiden määrät sekä shakki tilanteen.
@@ -154,7 +149,7 @@ def arvioi_tilanne(pelitilanne, siirrot=[], vuoro=0):
     kuninkaan_uhka_v = 0
     kuninkaan_uhka_b = 0
     materiaali = 0
-    if len(siirrot) == 0:
+    if siirrot is None:
         siirrot_v = kone_kaikki_siirrot(pelitilanne, 0)
         siirrot_b = kone_kaikki_siirrot(pelitilanne, 1)
     else:
@@ -168,7 +163,7 @@ def arvioi_tilanne(pelitilanne, siirrot=[], vuoro=0):
         for y in range(8):
             if pelitilanne[y][x] == "-":
                 continue
-            elif pelitilanne[y][x] == chr(9817):
+            if pelitilanne[y][x] == chr(9817):
                 materiaali += 100
                 doubled_v.add(x)
                 if not ((x > 0 and pelitilanne[y-1][x-1] == chr(9817)) or (x < 7 and pelitilanne[y-1][x+1] == chr(9817))):
@@ -217,7 +212,7 @@ def arvioi_tilanne(pelitilanne, siirrot=[], vuoro=0):
     return arvio
 
 def kone_kaikki_siirrot(pelitilanne, vuoro):
-    """Sama kuin kaikki_lailliset_siirrot mutta suoraviivaisempi ja ehkä vähän epäselvempi.
+    """Uudempi ja parempi versio kaikkien mahdollisten siirtojen laskemiseen.
 
     Args:
         pelitilanne list: PELILAUTA tapainen listojen lista hetkisestä pelitilanteesta
@@ -428,7 +423,7 @@ def kone_kaikki_siirrot(pelitilanne, vuoro):
     return siirrot
 
 def yksinpeli():
-    """Yksinpeli shakkibottia vastaan, en tiedä toimiiko hyvin ollenkaan
+    """Yksinpeli shakkibottia vastaan. Funktio on ikään kuin käyttöliittymää vain
 
     Returns:
         string: palauttaa 'quit' jos se jossain kohtaa konsoliin vastataan
@@ -452,14 +447,20 @@ def yksinpeli():
     siirto = (0, "")
     while True:
         print()
-        print("  ----------------------------")
+        print("  --------------------")
         for y in range(8):
-            rivi = str(y+1) + " | "
+            rivi = str(y+1) + " |"
             for x in range(8):
-                rivi += " " + pelitilanne[y][x] + " "
-            print(rivi + " | ")
-        print("  ----------------------------")
-        print("     a"," b"," c"," d"," e"," f"," g"," h")
+                if pelitilanne[y][x] == "-":
+                    if (x+y)%2 == 0:
+                        rivi += " " + chr(9633)
+                    else:
+                        rivi += " " + chr(9639)
+                else:
+                    rivi +=  " " + pelitilanne[y][x]
+            print(rivi + "  |")
+        print("  --------------------")
+        print("    a b c d e f g h")
         print()
 
         arvio = arvioi_tilanne(pelitilanne, [], vuoro)
@@ -475,12 +476,15 @@ def yksinpeli():
                 print("Pelaaja voitti!!!")
             print()
             return ""
-        print("mahdolliset siirrot ", tilanne[1])
+        siedettavammat = []
+        for siirto in tilanne[1]:
+            siedettavammat.append(chr(siirto[0]+97) + str(siirto[1]+1) + chr(siirto[2]+97) + str(siirto[3]+1))
+        print("mahdolliset siirrot ", siedettavammat)
         if vuoro == pelaaja:
             siirtop = input("Syötä siirto: ")
             if siirtop in ("quit", "q"):
                 return "quit"
-            if siirtop in tilanne[1]:
+            if siirtop in siedettavammat:
                 tee_siirto(pelitilanne, siirtop)
                 if vuoro == 1:
                     vuoro = 0
@@ -493,21 +497,14 @@ def yksinpeli():
             print("miettii.....")
             alku_aika = time.time()
             if aly_vuoro == 1:
-                if ALY == True:
-                    siirto = tekoalya(pelitilanne, LASKENTA_SYVYYS, -50000, 50000, aly_vuoro, (0, ""))
-                else:
-                    siirto = tekoalyb(pelitilanne, LASKENTA_SYVYYS, -50000, 50000, aly_vuoro, "")
+                siirto = tekoalya(pelitilanne, LASKENTA_SYVYYS, -50000, 50000, aly_vuoro, (0, ""))
             else:
-                if ALY == True:
-                    siirto = tekoalya_aloittaa(pelitilanne, LASKENTA_SYVYYS, -50000, 50000, aly_vuoro, (0, ""))
-                else:
-                    siirto = tekoalyb_aloittaa(pelitilanne, LASKENTA_SYVYYS, -50000, 50000, aly_vuoro, "")
-            oikea_muoto = chr(siirto[1][0]+97) + str(siirto[1][1]+1) + chr(siirto[1][2]+97) + str(siirto[1][3]+1)
+                siirto = tekoalyb(pelitilanne, LASKENTA_SYVYYS, -50000, 50000, aly_vuoro, (0, ""))
             loppu_aika = time.time()
-            print("Valmis! siirto; ", -1*siirto[0], siirto[1])
+            print("Valmis! siirto; ", siirto[0], siirto[1])
             print("Aikaa miettimiseen kului: ", loppu_aika-alku_aika, "s")
-            if oikea_muoto in tilanne[1]:
-                tee_siirto(pelitilanne, oikea_muoto)
+            if siirto[1] in tilanne[1]:
+                kone_siirto(pelitilanne, siirto[1])
                 if vuoro == 1:
                     vuoro = 0
                 else:
@@ -517,7 +514,7 @@ def yksinpeli():
                 return "quit"
 
 def kaksinpeli():
-    """Ainoa toimiva pelimuoto, missä kaksi pelaajaa pelaa toisiaan vastaan. Tämä funktio vain vaihtaa vuoroja ja tulostaa pelilaudan tilanteen
+    """Pelimuoto missä kaksi pelaajaa pelaa toisiaan vastaan. Tämä funktio vain vaihtaa vuoroja ja tulostaa pelilaudan tilanteen
 
     Returns:
         String: voi palauttaa vain 'quit' jolloin pelin suoritus pysähtyy. Jos mitään ei palauteta niin peli jatkuu
@@ -541,6 +538,9 @@ def kaksinpeli():
         print("Pelikenttä arvio: ", arvio/100)
         print("Pelaajan", vuoro+1, "vuoro")
         tilanne = matti(pelitilanne, vuoro)
+        siedettavammat = []
+        for siirto in tilanne[1]:
+            siedettavammat.append(chr(siirto[0]+97) + str(siirto[1]+1) + chr(siirto[2]+97) + str(siirto[3]+1))
         if tilanne[0]:
             print()
             if vuoro == 0:
@@ -548,13 +548,12 @@ def kaksinpeli():
             else:
                 print("Pelaaja 1 voitti!!!")
             print()
-            return
-        else:
-            print("mahdolliset siirrot ", tilanne[1])
+            return ""
+        print("mahdolliset siirrot ", siedettavammat)
         siirto = input("Syötä siirto: ")
         if siirto in ("quit", "q"):
             return "quit"
-        if siirto in tilanne[1]:
+        if siirto in siedettavammat:
             tee_siirto(pelitilanne, siirto)
             if vuoro == 1:
                 vuoro = 0
@@ -565,8 +564,7 @@ def kaksinpeli():
 
 def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto):
     """Rekursiivinen funktio laskemaan paras siirto kun tekoälyn siirrolla tilanteen arvo maksimoidaan ja pelaajan vuorolla minimoidaan
-    (shakkibotin suhteen). Eroaa toisesta tekoäly funktiosta siinä että laskee mahdollisten siirtojen arvot ensin, jolloin todennäköisesti
-    karsitaan enemmän siirtoja.
+    (shakkibotin suhteen). laskee mahdollisten siirtojen arvot joka askeleella, jolloin todennäköisesti karsitaan enemmän siirtoja.
 
     Args:
         pelitilanne list: PELILAUTA tapainen listojen lista hetkisestä pelitilanteesta
@@ -614,9 +612,8 @@ def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto):
                 break
         return arvo
 
-def tekoalya_aloittaa(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto):
-    """Sama kuin tekoalya() mutta tekoäly aloittaa. Helpompi tehä eri funktio kuin pitää kirjaa siitä kenen vuoro on, kenen vuorolle
-    lasketaan arvioita ja maksimoidaanko voi minimoidaanko arviota
+def tekoalyb(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto):
+    """Sama kuin tekoalya mutta pelaa valkoisilla napeilla, varmaan lopullisessa versiossa yhdistän nämä.
     """
     if syvyys == 0 or not (-10000 < edellinen_siirto[0] and edellinen_siirto[0] < 10000):
         return edellinen_siirto
@@ -631,7 +628,7 @@ def tekoalya_aloittaa(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto)
         arvo = (-50000,"")
         for siirto in arviot:
             nappula = kone_siirto(pelitilanne, siirto[1])
-            temp = tekoalya(pelitilanne, syvyys-1, alpha, beta, 1, (siirto[0], siirto[1]))
+            temp = tekoalyb(pelitilanne, syvyys-1, alpha, beta, 1, (siirto[0], siirto[1]))
             kone_peru(pelitilanne, siirto[1], nappula)
             if temp[0] > arvo[0]:
                 arvo = (temp[0], siirto[1])
@@ -644,80 +641,12 @@ def tekoalya_aloittaa(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto)
         arvo = (50000, "")
         for siirto in arviot:
             nappula = kone_siirto(pelitilanne, siirto[1])
-            temp = tekoalya(pelitilanne, syvyys-1, alpha, beta, 0, (siirto[0], siirto[1]))
+            temp = tekoalyb(pelitilanne, syvyys-1, alpha, beta, 0, (siirto[0], siirto[1]))
             if temp[0] < arvo[0]:
                 arvo = (temp[0], siirto[1])
             kone_peru(pelitilanne, siirto[1], nappula)
             beta = max(arvo[0], beta)
             if arvo[0] <= alpha:
-                break
-        return arvo
-
-def tekoalyb(pelitilanne, syvyys, alpha, beta, vuoro, edellinen):
-    """Yksinkertaisempi versio toisesta tekoälystä, huonompi karsimaan valintoja, sillä vain siirtojen ketjun lopussa oleva tilanne arvioidaan
-
-    Args:
-        samat kuin edellisessä, vain 'edellinen_siirto' puuttuu
-
-    Returns:
-        tuple(int, string): palauttaa tuplen joka kuvailee parasta siirtoa ja sen arvoa
-    """
-    if syvyys == 0 or edellinen == chr(9812) or edellinen == chr(9818):
-        return arvioi_tilanne(pelitilanne, [], vuoro)*(-1), ""
-    siirrot = kone_kaikki_siirrot(pelitilanne, vuoro)
-    if vuoro == 1:
-        arvo = (-50000,"")
-        for siirto in siirrot:
-            nappula = kone_siirto(pelitilanne, siirto)
-            temp = tekoalyb(pelitilanne, syvyys-1, alpha, beta, 0, nappula)
-            kone_peru(pelitilanne, siirto, nappula)
-            if temp[0] > arvo[0]:
-                arvo = (temp[0], siirto)
-            alpha = max(arvo[0], alpha)
-            if arvo[0] > beta:
-                break
-        return arvo
-    else:
-        arvo = (50000, "")
-        for siirto in siirrot:
-            nappula = kone_siirto(pelitilanne, siirto)
-            temp = tekoalyb(pelitilanne, syvyys-1, alpha, beta, 1, nappula)
-            kone_peru(pelitilanne, siirto, nappula)
-            if temp[0] < arvo[0]:
-                arvo = (temp[0], siirto)
-            beta = max(arvo[0], beta)
-            if arvo[0] < alpha:
-                break
-        return arvo
-
-def tekoalyb_aloittaa(pelitilanne, syvyys, alpha, beta, vuoro, edellinen):
-    """Sama kuin tekoalya() mutta tekoäly aloittaa. Helpompi tehä eri funktio kuin pitää kirjaa vuoroista ja jne.
-    """
-    if syvyys == 0 or edellinen == chr(9812) or edellinen == chr(9818):
-        return arvioi_tilanne(pelitilanne, [], vuoro), ""
-    siirrot = kone_kaikki_siirrot(pelitilanne, vuoro)
-    if vuoro == 0:
-        arvo = (-50000,"")
-        for siirto in siirrot:
-            nappula = kone_siirto(pelitilanne, siirto)
-            temp = tekoalyb(pelitilanne, syvyys-1, alpha, beta, 1, nappula)
-            kone_peru(pelitilanne, siirto, nappula)
-            if temp[0] > arvo[0]:
-                arvo = (temp[0], siirto)
-            alpha = max(arvo[0], alpha)
-            if arvo[0] > beta:
-                break
-        return arvo
-    else:
-        arvo = (50000, "")
-        for siirto in siirrot:
-            nappula = kone_siirto(pelitilanne, siirto)
-            temp = tekoalyb(pelitilanne, syvyys-1, alpha, beta, 0, nappula)
-            kone_peru(pelitilanne, siirto, nappula)
-            if temp[0] < arvo[0]:
-                arvo = (temp[0], siirto)
-            beta = max(arvo[0], beta)
-            if arvo[0] < alpha:
                 break
         return arvo
 

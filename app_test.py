@@ -1,6 +1,6 @@
 # pylint: skip-file
 import unittest
-from app import tee_siirto, kone_siirto, kone_kaikki_siirrot, matti, onko_shakki, tekoalya, tekoalya_aloittaa, tekoalyb, tekoalyb_aloittaa, arvioi_tilanne 
+from app import tee_siirto, kone_siirto, kone_kaikki_siirrot, matti, onko_shakki, tekoalya, tekoalyb, arvioi_tilanne 
 
 # Vain yksi yksinkertainen testi, periaatteessa vain testaamaan, että testaaminen onnistuu
 
@@ -321,7 +321,18 @@ class Test_kone_kaikki_siirrot(unittest.TestCase):
             self.assertEqual(siirto in mita_on, True)
     
     def test_vaikeampi_tilanne(self):
-        return
+        Pelilauta = [["-",chr(9818),"-","-","-","-","-","-"],
+                     ["-","-",chr(9820),"-","-","-","-",chr(9823)],
+                     ["-",chr(9823),chr(9821),"-","-","-","-","-"],
+                     ["-","-","-","-",chr(9815),"-","-","-"],
+                     ["-",chr(9822),"-",chr(9823),chr(9819),"-","-","-"],
+                     [chr(9813),chr(9817),chr(9817),"-",chr(9821),"-","-","-"],
+                     [chr(9817),"-",chr(9820),"-","-","-","-",chr(9817)],
+                     ["-",chr(9812),"-",chr(9814),"-",chr(9814),"-","-"]]
+        pitaisi_olla = [(1,0,0,0),(1,0,0,1),(1,0,1,1),(1,0,2,0),(2,1,2,0),(2,1,1,1),(2,1,0,1),(2,1,3,1),(2,1,4,1),(2,1,5,1),(2,1,6,1),(1,2,1,3),(2,2,3,3),(2,2,1,3),(2,2,0,4),(2,2,1,1),(2,2,0,0),(2,2,3,1),(2,2,4,0),(7,1,7,2),(7,1,7,3),(1,4,0,2),(1,4,3,5),(1,4,3,3),(1,4,0,6),(3,4,3,5),(3,4,2,5),(4,4,3,3),(4,4,5,4),(4,4,6,4),(4,4,7,4),(4,4,5,3),(4,4,6,2),(4,4,5,5),(4,4,6,6),(4,4,7,7),(4,4,3,5),(4,5,5,6),(4,5,6,7),(4,5,3,6),(4,5,2,7),(4,5,5,4),(4,5,6,3),(4,5,7,2),(2,6,1,6),(2,6,0,6),(2,6,2,5),(2,6,2,7),(2,6,3,6),(2,6,3,6),(2,6,4,6),(2,6,5,6),(2,6,6,6),(2,6,7,6)]
+        mita_on = kone_kaikki_siirrot(Pelilauta, 1)
+        for siirto in pitaisi_olla:
+            self.assertTrue(siirto in mita_on)
 
 class Test_tekoaly(unittest.TestCase):
     def setUp(self) -> None:
@@ -339,21 +350,56 @@ class Test_tekoaly(unittest.TestCase):
         try:
             siirto = tekoalya(Pelilauta, 3, -50000, 50000, 1, (0,""))
         except:
-            self.assertEqual(False, True)
+            self.assertTrue(False)
             return
         tilanne = matti(Pelilauta, 1)
-        if siirto[1] in tilanne[1]:
-            self.assertEqual(True,True)
-        else:
-            self.assertEqual(False,False)
+        self.assertTrue(siirto[1] in tilanne[1])
     
     def test_a_palauttaa_vaikeammassa_tilanteessa(self):
-        return
+        Pelilauta = [["-",chr(9818),"-","-","-","-","-","-"],
+                     ["-","-",chr(9820),"-","-","-","-",chr(9823)],
+                     ["-",chr(9823),chr(9821),"-","-","-","-","-"],
+                     ["-","-","-","-",chr(9815),"-","-","-"],
+                     ["-","-","-",chr(9823),chr(9819),"-","-","-"],
+                     [chr(9813),chr(9817),"-","-",chr(9821),"-","-","-"],
+                     [chr(9817),"-",chr(9820),"-","-","-","-",chr(9817)],
+                     ["-",chr(9812),"-",chr(9814),"-",chr(9814),"-","-"]]
+        try:
+            siirto = tekoalya(Pelilauta, 3, -50000, 50000, 1, (0,""))
+        except:
+            self.assertTrue(False)
+            return
+        tilanne = matti(Pelilauta, 1)
+        self.assertTrue(siirto[1] in tilanne[1])
     
     def test_a_osaa_voittaa_kahden_siirron_päässä(self):
-        return
+        Pelilauta = [["-","-","-","-",chr(9820),"-",chr(9818),"-"],
+                     [chr(9823),"-","-","-","-",chr(9814),"-",chr(9823)],
+                     ["-","-","-",chr(9815),"-","-",chr(9823),chr(9819)],
+                     ["-","-","-",chr(9813),chr(9817),"-","-","-"],
+                     ["-","-","-",chr(9821),"-","-","-","-"],
+                     ["-","-","-","-","-","-",chr(9817),"-"],
+                     [chr(9817),"-","-","-","-",chr(9814),"-","-"],
+                     ["-","-",chr(9820),chr(9815),"-","-",chr(9812),"-"]]
+        siirrot = [(2,7,3,7),(7,2,7,7)]
+        vastasiirrot = [(6,7,6,6)]
+        i = 0
+        while i < len(siirrot):
+            try:
+                siirto = tekoalya(Pelilauta, 3, -50000, 50000, 1, (0,""))
+            except:
+                self.assertTrue(False)
+                return
+            self.assertEqual(siirto[1], siirrot[i])
+            kone_siirto(Pelilauta, siirto[1])
+            if i < len(vastasiirrot):
+                kone_siirto(Pelilauta, vastasiirrot[i])
+            else:
+                tilanne = matti(Pelilauta, 0)
+                self.assertTrue(tilanne[0])
+            i += 1
     
-    def test_b_palauttaa_jotain_alussa(self):
+    def test_bloittaa_palauttaa_jotain_alussa(self):
         Pelilauta = [[chr(9820),chr(9822),chr(9821),chr(9819),chr(9818),chr(9821),chr(9822),chr(9820)],
                     [chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823)],
                     ["-","-","-","-","-","-","-","-"],
@@ -363,73 +409,55 @@ class Test_tekoaly(unittest.TestCase):
                     [chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817)],
                     [chr(9814),chr(9816),chr(9815),chr(9813),chr(9812),chr(9815),chr(9816),chr(9814)]]
         try:
-            siirto = tekoalyb(Pelilauta, 3, -50000, 50000, 1, "")
+            siirto = tekoalyb(Pelilauta, 3, -50000, 50000, 0, (0,""))
         except:
-            self.assertEqual(False, True)
+            self.assertTrue(False)
             return
-        tilanne = matti(Pelilauta, 1)
-        if siirto[1] in tilanne[1]:
-            self.assertEqual(True,True)
-        else:
-            self.assertEqual(False,False)
+        tilanne = matti(Pelilauta, 0)
+        self.assertTrue(siirto[1] in tilanne[1])
     
-    def test_b_palauttaa_vaikeammassa_tilanteessa(self):
-        return
+    def test_bloittaa_palauttaa_vaikeammassa_tilanteessa(self):
+        Pelilauta = [["-",chr(9818),"-","-","-","-","-","-"],
+                     ["-","-",chr(9820),"-","-","-","-",chr(9823)],
+                     ["-",chr(9823),chr(9821),"-","-","-","-","-"],
+                     ["-","-","-","-",chr(9815),"-","-","-"],
+                     ["-","-","-",chr(9823),chr(9819),"-","-","-"],
+                     [chr(9813),chr(9817),"-","-",chr(9821),"-","-","-"],
+                     [chr(9817),"-",chr(9820),"-","-","-","-",chr(9817)],
+                     ["-",chr(9812),"-",chr(9814),"-",chr(9814),"-","-"]]
+        try:
+            siirto = tekoalyb(Pelilauta, 3, -50000, 50000, 0, (0,""))
+        except:
+            self.assertTrue(False)
+        tilanne = matti(Pelilauta, 0)
+        self.assertTrue(siirto[1] in tilanne[1])
     
     def test_b_osaa_voittaa_kahden_siirron_päässä(self):
-        return
-    
-    def test_aa_palauttaa_jotain_alussa(self):
-        Pelilauta = [[chr(9820),chr(9822),chr(9821),chr(9819),chr(9818),chr(9821),chr(9822),chr(9820)],
-                    [chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823)],
-                    ["-","-","-","-","-","-","-","-"],
-                    ["-","-","-","-","-","-","-","-"],
-                    ["-","-","-","-","-","-","-","-"],
-                    ["-","-","-","-","-","-","-","-"],
-                    [chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817)],
-                    [chr(9814),chr(9816),chr(9815),chr(9813),chr(9812),chr(9815),chr(9816),chr(9814)]]
-        try:
-            siirto = tekoalya_aloittaa(Pelilauta, 3, -50000, 50000, 0, (0,""))
-        except:
-            self.assertEqual(False, True)
-            return
-        tilanne = matti(Pelilauta, 1)
-        if siirto[1] in tilanne[1]:
-            self.assertEqual(True,True)
-        else:
-            self.assertEqual(False,False)
-    
-    def test_aa_palauttaa_vaikeammassa_tilanteessa(self):
-        return
-    
-    def test_aa_osaa_voittaa_kahden_siirron_päässä(self):
-        return
-    
-    def test_ba_palauttaa_jotain_alussa(self):
-        Pelilauta = [[chr(9820),chr(9822),chr(9821),chr(9819),chr(9818),chr(9821),chr(9822),chr(9820)],
-                    [chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823)],
-                    ["-","-","-","-","-","-","-","-"],
-                    ["-","-","-","-","-","-","-","-"],
-                    ["-","-","-","-","-","-","-","-"],
-                    ["-","-","-","-","-","-","-","-"],
-                    [chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817)],
-                    [chr(9814),chr(9816),chr(9815),chr(9813),chr(9812),chr(9815),chr(9816),chr(9814)]]
-        try:
-            siirto = tekoalyb_aloittaa(Pelilauta, 3, -50000, 50000, 0, "")
-        except:
-            self.assertEqual(False, True)
-            return
-        tilanne = matti(Pelilauta, 1)
-        if siirto[1] in tilanne[1]:
-            self.assertEqual(True,True)
-        else:
-            self.assertEqual(False,False)
-    
-    def test_ba_palauttaa_vaikeammassa_tilanteessa(self):
-        return
-    
-    def test_ba_osaa_voittaa_kahden_siirron_päässä(self):
-        return
+        Pelilauta = [["-",chr(9818),"-","-",chr(9821),chr(9814),"-","-"],
+                     ["-","-",chr(9820),"-","-","-","-",chr(9823)],
+                     ["-",chr(9823),"-","-","-","-","-","-"],
+                     ["-","-","-","-",chr(9815),"-","-","-"],
+                     ["-","-","-",chr(9823),chr(9819),"-","-","-"],
+                     [chr(9813),chr(9817),"-","-",chr(9821),"-","-","-"],
+                     [chr(9817),"-",chr(9820),"-","-","-","-",chr(9817)],
+                     ["-",chr(9812),"-",chr(9814),"-","-","-","-"]]
+        siirrot = [(5,0,4,0),(0,5,0,0)]
+        vastasiirrot = [(1,0,1,1)]
+        i = 0
+        while i < len(siirrot):
+            try:
+                siirto = tekoalyb(Pelilauta, 3, -50000, 50000, 0, (0,""))
+            except:
+                self.assertTrue(False)
+                return
+            self.assertEqual(siirto[1], siirrot[i])
+            kone_siirto(Pelilauta, siirto[1])
+            if i < len(vastasiirrot):
+                kone_siirto(Pelilauta, vastasiirrot[i])
+            else:
+                tilanne = matti(Pelilauta, 1)
+                self.assertTrue(tilanne[0])
+            i += 1
 
 #Vähän turhat testit mutta näyttää hyvältä kattavuudessa
 class Test_arvioi_tilanne(unittest.TestCase):
