@@ -1,6 +1,6 @@
 
 ## Sovelluksen käyttäminen
-Sovelluksen käyttämiseen ei tarvitse asentaa riippuvaisuuksia. Sovelluksella on hetkellä (ehkä myös pysyvästi) vain tekstikäyttöliittymä komentorivillä. Ainakin linuxissa (varmaan windowsilla on ainakin samankaltainen) sovelluksen saa käynnistettyä juurikansiosta komennolla:
+Sovelluksen **käyttämiseen** ei tarvitse asentaa riippuvaisuuksia. Sovelluksella on hetkellä (ehkä myös pysyvästi) vain tekstikäyttöliittymä komentorivillä. Ainakin linuxissa (varmaan windowsilla on ainakin samankaltainen) sovelluksen saa käynnistettyä juurikansiosta komennolla:
 
 	python3 app.py
 
@@ -9,3 +9,5 @@ Jonka jälkeen sovellus kysyy pelataanko yksin shakkibottia vastaan "1P" vai kak
 Siirtoja syötetään muodossa alku x, alku y, loppu x, loppu y. Eli esim. siirto ruudulta e2 ruutuun e4 on "e2e4". Myöhemmin saattaa tulla erikoisempia siirtoja peliin mutta hetkellä mm. tornitus, ohestalyönti, sotilaan korotus eivät ole pelissä.
 
 Pelistä voi aina poistua syöttämällä "quit".
+
+Jos haluaa itse testejä tai koodin laaduntarkastusta suorittaa niin käyttöohjeissa on lisää
