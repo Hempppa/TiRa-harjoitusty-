@@ -1,8 +1,7 @@
 # pylint: skip-file
 import unittest
-from app import tee_siirto, kone_siirto, kone_kaikki_siirrot, matti, onko_shakki, tekoalya, tekoalyb, arvioi_tilanne 
-
-# Vain yksi yksinkertainen testi, periaatteessa vain testaamaan, että testaaminen onnistuu
+from src.pelilogiikka import tee_siirto, kone_siirto, kone_kaikki_siirrot, matti, onko_shakki
+from src.tekoaly import tekoalya, tekoalyb, arvioi_tilanne 
 
 class Test_tee_siirto(unittest.TestCase):
     # Testaa siis sekä tee_siirto että kone_siirto
