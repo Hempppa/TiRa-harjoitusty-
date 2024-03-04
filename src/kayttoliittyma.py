@@ -107,16 +107,25 @@ def yksinpeli():
         else:
             print()
             print("miettii.....")
-            alku_aika = time.time()
-            if aly_vuoro == 1:
-                siirto = tekoalya(pelitilanne, LASKENTA_SYVYYS, -50000, 50000, aly_vuoro, (0, ""))
-            else:
-                siirto = tekoalyb(pelitilanne, LASKENTA_SYVYYS, -50000, 50000, aly_vuoro, (0, ""))
-            loppu_aika = time.time()
+            ihan_alku = time.time()
+            syvyys = 2
+            siirto_taulu = {}
+            while True:
+                alku_aika = time.time()
+                if aly_vuoro == 1:
+                    siirto = tekoalya(pelitilanne, syvyys, -500000, 500000, aly_vuoro, (0, ""), siirto_taulu)
+                else:
+                    siirto = tekoalyb(pelitilanne, syvyys, -500000, 500000, aly_vuoro, (0, ""), siirto_taulu)
+                loppu_aika = time.time()
+                if loppu_aika-alku_aika > 5:
+                    break
+                syvyys += 1
+            ihan_loppu = time.time()
             print("Valmis! siirto; ", siirto[0], siirto[1])
-            print("Aikaa miettimiseen kului: ", loppu_aika-alku_aika, "s")
+            print("Aikaa miettimiseen kului: ", ihan_loppu-ihan_alku, "s")
+            print("Iteraatioita: ", syvyys)
             if siirto[1] in tilanne[1]:
-                kone_siirto(pelitilanne, siirto[1])
+                kone_siirto(pelitilanne, siirto[1], aly_vuoro)
                 if vuoro == 1:
                     vuoro = 0
                 else:

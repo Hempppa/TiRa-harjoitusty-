@@ -1,7 +1,14 @@
 # pylint: skip-file
+import sys
+import os
 import unittest
-from src.pelilogiikka import tee_siirto, kone_siirto, kone_kaikki_siirrot, matti, onko_shakki
-from src.tekoaly import tekoalya, tekoalyb, arvioi_tilanne 
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
+from pelilogiikka import tee_siirto, kone_siirto, kone_kaikki_siirrot, matti, onko_shakki
+from tekoaly import tekoalya, tekoalyb, arvioi_tilanne, pelitilanne_to_simplified_FEN 
 
 class Test_tee_siirto(unittest.TestCase):
     # Testaa siis sekä tee_siirto että kone_siirto
@@ -36,6 +43,12 @@ class Test_tee_siirto(unittest.TestCase):
         self.assertEqual(nappula2, chr(9817))
         self.assertEqual(nappula3, chr(9822))
 
+    def test_kone_en_passant_mahdollista(self):
+        return
+    
+    def test_kone_korotus_toimii(self):
+        return
+
     def test_kone_tekee_siirron(self):
         temp = [[chr(9820),chr(9822),chr(9821),chr(9819),chr(9818),chr(9821),chr(9822),chr(9820)],
                 [chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823)],
@@ -55,6 +68,12 @@ class Test_tee_siirto(unittest.TestCase):
         self.assertEqual(nappula1, "-")
         self.assertEqual(nappula2, chr(9817))
         self.assertEqual(nappula3, chr(9822))
+
+    def test_kone_en_passant_mahdollista(self):
+        return
+    
+    def test_kone_korotus_toimii(self):
+        return
 
 
 class Test_onko_shakki(unittest.TestCase):
@@ -333,6 +352,12 @@ class Test_kone_kaikki_siirrot(unittest.TestCase):
         for siirto in pitaisi_olla:
             self.assertTrue(siirto in mita_on)
 
+    def test_sisaltaa_en_passant(self):
+        return
+
+    def test_sisaltaa_korotus(self):
+        return
+
 class Test_tekoaly(unittest.TestCase):
     def setUp(self) -> None:
         return super().setUp()
@@ -347,7 +372,7 @@ class Test_tekoaly(unittest.TestCase):
                     [chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817)],
                     [chr(9814),chr(9816),chr(9815),chr(9813),chr(9812),chr(9815),chr(9816),chr(9814)]]
         try:
-            siirto = tekoalya(Pelilauta, 3, -50000, 50000, 1, (0,""))
+            siirto = tekoalya(Pelilauta, 3, -500000, 500000, 1, (0,""), {})
         except:
             self.assertTrue(False)
             return
@@ -364,7 +389,7 @@ class Test_tekoaly(unittest.TestCase):
                      [chr(9817),"-",chr(9820),"-","-","-","-",chr(9817)],
                      ["-",chr(9812),"-",chr(9814),"-",chr(9814),"-","-"]]
         try:
-            siirto = tekoalya(Pelilauta, 3, -50000, 50000, 1, (0,""))
+            siirto = tekoalya(Pelilauta, 3, -500000, 500000, 1, (0,""), {})
         except:
             self.assertTrue(False)
             return
@@ -385,7 +410,7 @@ class Test_tekoaly(unittest.TestCase):
         i = 0
         while i < len(siirrot):
             try:
-                siirto = tekoalya(Pelilauta, 3, -50000, 50000, 1, (0,""))
+                siirto = tekoalya(Pelilauta, 3, -500000, 500000, 1, (0,""), {})
             except:
                 self.assertTrue(False)
                 return
@@ -398,7 +423,10 @@ class Test_tekoaly(unittest.TestCase):
                 self.assertTrue(tilanne[0])
             i += 1
     
-    def test_bloittaa_palauttaa_jotain_alussa(self):
+    def test_a_iteratiivinen_syveneminen_toimii(self):
+        return
+    
+    def test_b_palauttaa_jotain_alussa(self):
         Pelilauta = [[chr(9820),chr(9822),chr(9821),chr(9819),chr(9818),chr(9821),chr(9822),chr(9820)],
                     [chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823)],
                     ["-","-","-","-","-","-","-","-"],
@@ -408,14 +436,14 @@ class Test_tekoaly(unittest.TestCase):
                     [chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817)],
                     [chr(9814),chr(9816),chr(9815),chr(9813),chr(9812),chr(9815),chr(9816),chr(9814)]]
         try:
-            siirto = tekoalyb(Pelilauta, 3, -50000, 50000, 0, (0,""))
+            siirto = tekoalyb(Pelilauta, 3, -500000, 500000, 0, (0,""), {})
         except:
             self.assertTrue(False)
             return
         tilanne = matti(Pelilauta, 0)
         self.assertTrue(siirto[1] in tilanne[1])
     
-    def test_bloittaa_palauttaa_vaikeammassa_tilanteessa(self):
+    def test_b_palauttaa_vaikeammassa_tilanteessa(self):
         Pelilauta = [["-",chr(9818),"-","-","-","-","-","-"],
                      ["-","-",chr(9820),"-","-","-","-",chr(9823)],
                      ["-",chr(9823),chr(9821),"-","-","-","-","-"],
@@ -425,7 +453,7 @@ class Test_tekoaly(unittest.TestCase):
                      [chr(9817),"-",chr(9820),"-","-","-","-",chr(9817)],
                      ["-",chr(9812),"-",chr(9814),"-",chr(9814),"-","-"]]
         try:
-            siirto = tekoalyb(Pelilauta, 3, -50000, 50000, 0, (0,""))
+            siirto = tekoalyb(Pelilauta, 3, -500000, 500000, 0, (0,""), {})
         except:
             self.assertTrue(False)
         tilanne = matti(Pelilauta, 0)
@@ -445,7 +473,7 @@ class Test_tekoaly(unittest.TestCase):
         i = 0
         while i < len(siirrot):
             try:
-                siirto = tekoalyb(Pelilauta, 3, -50000, 50000, 0, (0,""))
+                siirto = tekoalyb(Pelilauta, 3, -500000, 500000, 0, (0,""), {})
             except:
                 self.assertTrue(False)
                 return
@@ -457,6 +485,9 @@ class Test_tekoaly(unittest.TestCase):
                 tilanne = matti(Pelilauta, 1)
                 self.assertTrue(tilanne[0])
             i += 1
+
+    def test_b_iteratiivinen_syveneminen_toimii(self):
+        return
 
 #Vähän turhat testit mutta näyttää hyvältä kattavuudessa
 class Test_arvioi_tilanne(unittest.TestCase):

@@ -38,18 +38,36 @@ def tee_siirto(pelitilanne, siirto):
     mihin_y = int(siirto[3])-1
     poistettu = pelitilanne[mihin_y][mihin_x]
     if len(siirto) > 5:
-        pelitilanne[mihin_y][mihin_x] = siirto[4]
+        if siirto[4] == "e":
+            if pelitilanne[mista_y][mista_x] == chr(9817):
+                poistettu = chr(9823)
+                pelitilanne[siirto[3]-1][siirto[2]] = "-"
+            else:
+                poistettu = chr(9817)
+                pelitilanne[siirto[3]+1][siirto[2]] = "-"
+            pelitilanne[mihin_y][mihin_x] = pelitilanne[mista_y][mista_x]
+        else:
+            pelitilanne[mihin_y][mihin_x] = siirto[4]
     else:
         pelitilanne[mihin_y][mihin_x] = pelitilanne[mista_y][mista_x]
     pelitilanne[mista_y][mista_x] = "-"
     return poistettu
 
-def kone_siirto(pelitilanne, siirto):
+def kone_siirto(pelitilanne, siirto, vuoro=None):
     """Sama kuin 'tee_siirto' käyttäen 'kone_kaikki_siirrot' siirtoja
     """
     poistettu = pelitilanne[siirto[3]][siirto[2]]
     if len(siirto) > 5:
-        pelitilanne[siirto[3]][siirto[2]] = siirto[4]
+        if siirto[4] == "en":
+            if vuoro == 0:
+                poistettu = chr(9823)
+                pelitilanne[siirto[3]-1][siirto[2]] = "-"
+            else:
+                poistettu = chr(9817)
+                pelitilanne[siirto[3]+1][siirto[2]] = "-"
+            pelitilanne[siirto[3]][siirto[2]] = pelitilanne[siirto[1]][siirto[0]]
+        else:
+            pelitilanne[siirto[3]][siirto[2]] = siirto[4]
     else:
         pelitilanne[siirto[3]][siirto[2]] = pelitilanne[siirto[1]][siirto[0]]
     pelitilanne[siirto[1]][siirto[0]] = "-"
@@ -64,10 +82,21 @@ def kone_peru(pelitilanne, siirto, nappula, vuoro):
         nappula string: Nappula joka ruudun paikalla ennen oli, esim. tyhjän ruudun ollessa '-'
     """
     if len(siirto) > 5:
-        pelitilanne[siirto[1]][siirto[0]] = PELINAPPULAT[vuoro][0]
+        if siirto[4] == "en":
+            if vuoro == 0:
+                poistettu = chr(9823)
+                pelitilanne[siirto[3]-1][siirto[2]] = nappula
+            else:
+                poistettu = chr(9817)
+                pelitilanne[siirto[3]+1][siirto[2]] = nappula
+            pelitilanne[siirto[1]][siirto[0]] = pelitilanne[siirto[3]][siirto[2]]
+            pelitilanne[siirto[3]][siirto[2]] = "-"
+        else:
+            pelitilanne[siirto[1]][siirto[0]] = PELINAPPULAT[vuoro][0]
+            pelitilanne[siirto[3]][siirto[2]] = nappula
     else:
         pelitilanne[siirto[1]][siirto[0]] = pelitilanne[siirto[3]][siirto[2]]
-    pelitilanne[siirto[3]][siirto[2]] = nappula
+        pelitilanne[siirto[3]][siirto[2]] = nappula
 
 def onko_shakki(pelitilanne, vuoro):
     """Tarkistaa onko shakki, eli voiko vuorossa olevan pelaajan kuninkaan ruutuun hyökätä millään
@@ -94,7 +123,7 @@ def onko_shakki(pelitilanne, vuoro):
             return True
     return False
 
-def kone_kaikki_siirrot(pelitilanne, vuoro):
+def kone_kaikki_siirrot(pelitilanne, vuoro, edellinen_siirto=(0,0,0,0)):
     """Uudempi ja parempi versio kaikkien mahdollisten siirtojen laskemiseen.
 
     Args:
@@ -123,10 +152,18 @@ def kone_kaikki_siirrot(pelitilanne, vuoro):
                                 siirrot.append((x,y,x,y-1))
                             if y == 6 and pelitilanne[y-2][x] == "-":
                                 siirrot.append((x,y,x,y-2))
-                        if x > 0 and pelitilanne[y-1][x-1] not in omat and pelitilanne[y-1][x-1] != "-":
-                            siirrot.append((x,y,x-1,y-1))
-                        if x < 7 and pelitilanne[y-1][x+1] not in omat and pelitilanne[y-1][x+1] != "-":
-                            siirrot.append((x,y,x+1,y-1))
+                        if x > 0 and pelitilanne[y-1][x-1] not in omat:
+                            if pelitilanne[y-1][x-1] == "-":
+                                if y == 3 and edellinen_siirto[0] == x-1 and edellinen_siirto[2] == x-1 and edellinen_siirto[1] == 1 and edellinen_siirto[3] == 3 and pelitilanne[x-1][3] == chr(9823):
+                                    siirrot.append(x,y,x-1,2,"en")
+                            else:
+                                siirrot.append((x,y,x-1,y-1))
+                        if x < 7 and pelitilanne[y-1][x+1] not in omat:
+                            if pelitilanne[y-1][x+1] == "-":
+                                if y == 3 and edellinen_siirto[0] == x+1 and edellinen_siirto[2] == x+1 and edellinen_siirto[1] == 1 and edellinen_siirto[3] == 3 and pelitilanne[x+1][3] == chr(9823):
+                                    siirrot.append(x,y,x+1,2,"en")
+                            else:
+                                siirrot.append((x,y,x+1,y-1))
                 else:
                     if y < 7:
                         if pelitilanne[y+1][x] == "-":
@@ -134,9 +171,18 @@ def kone_kaikki_siirrot(pelitilanne, vuoro):
                             if y == 1 and pelitilanne[y+2][x] == "-":
                                 siirrot.append((x,y,x,y+2))
                         if x > 0 and pelitilanne[y+1][x-1] not in omat and pelitilanne[y+1][x-1] != "-":
+                            if pelitilanne[y+1][x-1] == "-":
+                                if y == 4 and edellinen_siirto[0] == x-1 and edellinen_siirto[2] == x-1 and edellinen_siirto[1] == 6 and edellinen_siirto[3] == 4 and pelitilanne[x-1][4] == chr(9817):
+                                    siirrot.append(x,y,x-1,5,"en")
+                            else:
+                                siirrot.append((x,y,x-1,y+1))
                             siirrot.append((x,y,x-1,y+1))
                         if x < 7 and pelitilanne[y+1][x+1] not in omat and pelitilanne[y+1][x+1] != "-":
-                            siirrot.append((x,y,x+1,y+1))
+                            if pelitilanne[y+1][x+1] == "-":
+                                if y == 4 and edellinen_siirto[0] == x+1 and edellinen_siirto[2] == x+1 and edellinen_siirto[1] == 6 and edellinen_siirto[3] == 4 and pelitilanne[x-1][4] == chr(9817):
+                                    siirrot.append(x,y,x+1,5,"en")
+                            else:
+                                siirrot.append((x,y,x+1,y+1))
             elif pelinappula == omat[1]:
                 #r tai R
                 for i in range(x+1, 8):

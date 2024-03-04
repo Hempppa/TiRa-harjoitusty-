@@ -75,12 +75,12 @@ def arvioi_tilanne(pelitilanne, siirrot=None, vuoro=0):
             elif pelitilanne[y][x] == chr(9819):
                 materiaali -= 900
             elif pelitilanne[y][x] == chr(9812):
-                materiaali += 20000
+                materiaali += 50000
                 for siirto in siirrot_b:
                     if siirto[2] == x and siirto[3] == y:
                         kuninkaan_uhka_v += 100
             elif pelitilanne[y][x] == chr(9818):
-                materiaali -= 20000
+                materiaali -= 50000
                 for siirto in siirrot_v:
                     if siirto[2] == x and siirto[3] == y:
                         kuninkaan_uhka_b += 100
@@ -90,7 +90,7 @@ def arvioi_tilanne(pelitilanne, siirrot=None, vuoro=0):
     arvio -= (kuninkaan_uhka_b-kuninkaan_uhka_v)*kuninkaan_uhka_paino
     return arvio
 
-def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto):
+def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_taulu):
     """Rekursiivinen funktio laskemaan paras siirto kun tekoälyn siirrolla tilanteen arvo maksimoidaan ja pelaajan vuorolla minimoidaan
     (shakkibotin suhteen). laskee mahdollisten siirtojen arvot joka askeleella, jolloin todennäköisesti karsitaan enemmän siirtoja.
 
@@ -105,75 +105,110 @@ def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto):
     Returns:
         tuple(int, string): palauttaa tuplen joka kuvailee parasta siirtoa ja sen arvoa
     """
-    if syvyys == 0 or not (-10000 < edellinen_siirto[0] and edellinen_siirto[0] < 10000):
+    if syvyys == 0 or not (-25000 < edellinen_siirto[0] and edellinen_siirto[0] < 25000):
         return edellinen_siirto
     siirrot = kone_kaikki_siirrot(pelitilanne, vuoro)
     arviot = []
+    fenJono = pelitilanne_to_simplified_FEN(pelitilanne, vuoro)
+    paras = ""
+    if fenJono in siirto_taulu:
+        paras = siirto_taulu[fenJono]
     for siirto in siirrot:
-        nappula = kone_siirto(pelitilanne, siirto)
+        nappula = kone_siirto(pelitilanne, siirto, vuoro)
         arviot.append((arvioi_tilanne(pelitilanne, siirrot, vuoro)*(-1), siirto))
         kone_peru(pelitilanne, siirto, nappula, vuoro)
     if vuoro == 1:
         arviot.sort(reverse=True)
-        arvo = (-50000,"")
+        arvo = (-500000,"")
+        if paras :
+            arviot = [paras]+arviot
         for siirto in arviot:
-            nappula = kone_siirto(pelitilanne, siirto[1])
-            temp = tekoalya(pelitilanne, syvyys-1, alpha, beta, 0, (siirto[0], siirto[1]))
+            nappula = kone_siirto(pelitilanne, siirto[1], vuoro)
+            temp = tekoalya(pelitilanne, syvyys-1, alpha, beta, 0, (siirto[0], siirto[1]), siirto_taulu)
             kone_peru(pelitilanne, siirto[1], nappula, vuoro)
             if temp[0] > arvo[0]:
                 arvo = (temp[0], siirto[1])
             alpha = max(arvo[0], alpha)
             if arvo[0] >= beta:
                 break
+        siirto_taulu[fenJono] = arvo
         return arvo
     else:
         arviot.sort()
-        arvo = (50000, "")
+        arvo = (500000, "")
+        if paras :
+            arviot = [paras]+arviot
         for siirto in arviot:
-            nappula = kone_siirto(pelitilanne, siirto[1])
-            temp = tekoalya(pelitilanne, syvyys-1, alpha, beta, 1, (siirto[0], siirto[1]))
+            nappula = kone_siirto(pelitilanne, siirto[1], vuoro)
+            temp = tekoalya(pelitilanne, syvyys-1, alpha, beta, 1, (siirto[0], siirto[1]), siirto_taulu)
             if temp[0] < arvo[0]:
                 arvo = (temp[0], siirto[1])
             kone_peru(pelitilanne, siirto[1], nappula, vuoro)
             beta = max(arvo[0], beta)
             if arvo[0] <= alpha:
                 break
+        siirto_taulu[fenJono] = arvo
         return arvo
 
-def tekoalyb(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto):
+def tekoalyb(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_taulu):
     """Sama kuin tekoalya mutta pelaa valkoisilla napeilla, varmaan lopullisessa versiossa yhdistän nämä.
     """
-    if syvyys == 0 or not (-10000 < edellinen_siirto[0] and edellinen_siirto[0] < 10000):
+    if syvyys == 0 or not (-25000 > edellinen_siirto[0] or edellinen_siirto[0] < 25000):
         return edellinen_siirto
     siirrot = kone_kaikki_siirrot(pelitilanne, vuoro)
     arviot = []
+    fenJono = pelitilanne_to_simplified_FEN(pelitilanne, vuoro)
+    paras = ""
+    if fenJono in siirto_taulu:
+        paras = siirto_taulu[fenJono]
     for siirto in siirrot:
-        nappula = kone_siirto(pelitilanne, siirto)
+        nappula = kone_siirto(pelitilanne, siirto, vuoro)
         arviot.append((arvioi_tilanne(pelitilanne, siirrot, vuoro), siirto))
         kone_peru(pelitilanne, siirto, nappula, vuoro)
     if vuoro == 0:
         arviot.sort(reverse=True)
-        arvo = (-50000,"")
+        arvo = (-500000,"")
+        if paras :
+            arviot = [paras]+arviot
         for siirto in arviot:
-            nappula = kone_siirto(pelitilanne, siirto[1])
-            temp = tekoalyb(pelitilanne, syvyys-1, alpha, beta, 1, (siirto[0], siirto[1]))
+            nappula = kone_siirto(pelitilanne, siirto[1], vuoro)
+            temp = tekoalyb(pelitilanne, syvyys-1, alpha, beta, 1, (siirto[0], siirto[1]), siirto_taulu)
             kone_peru(pelitilanne, siirto[1], nappula, vuoro)
             if temp[0] > arvo[0]:
                 arvo = (temp[0], siirto[1])
             alpha = max(arvo[0], alpha)
             if arvo[0] >= beta:
                 break
+        siirto_taulu[fenJono] = arvo
         return arvo
     else:
         arviot.sort()
-        arvo = (50000, "")
+        arvo = (500000, "")
+        if paras :
+            arviot = [paras]+arviot
         for siirto in arviot:
-            nappula = kone_siirto(pelitilanne, siirto[1])
-            temp = tekoalyb(pelitilanne, syvyys-1, alpha, beta, 0, (siirto[0], siirto[1]))
+            nappula = kone_siirto(pelitilanne, siirto[1], vuoro)
+            temp = tekoalyb(pelitilanne, syvyys-1, alpha, beta, 0, (siirto[0], siirto[1]), siirto_taulu)
             if temp[0] < arvo[0]:
                 arvo = (temp[0], siirto[1])
             kone_peru(pelitilanne, siirto[1], nappula, vuoro)
             beta = max(arvo[0], beta)
             if arvo[0] <= alpha:
                 break
+        siirto_taulu[fenJono] = arvo
         return arvo
+    
+def pelitilanne_to_simplified_FEN(pelitilanne, vuoro):
+    #koska tarvitaan vain siirtojen kannalta uniikki merkkijono niin voidaan yksinkertaistaa
+    merkkijono = ""
+    tyhjia = 0
+    for x in range(8):
+        for y in range(8):
+            if pelitilanne[y][x] == "-":
+                tyhjia += 1
+            else:
+                if tyhjia > 0:
+                    merkkijono += str(tyhjia)
+                merkkijono += pelitilanne[y][x]
+    merkkijono += str(vuoro)
+    return merkkijono
