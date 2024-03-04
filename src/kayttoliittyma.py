@@ -121,6 +121,7 @@ def yksinpeli():
                 #Jos aikaa iteraation laskemiseen kesti yli kokonaisluvun osoittama määrä sekunneissa niin looppi katkaistaan
                 if loppu_aika-alku_aika > 5:
                     break
+                    #
                 syvyys += 1
             ihan_loppu = time.time()
             #

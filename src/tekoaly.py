@@ -108,14 +108,18 @@ def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_t
     if syvyys == 0 or -25000 > edellinen_siirto[0] or edellinen_siirto[0] > 25000:
         return edellinen_siirto
     siirrot = kone_kaikki_siirrot(pelitilanne, vuoro)
+    #pelitilanne kohtainen uniikki merkkijono
     fenJono = pelitilanne_to_simplified_FEN(pelitilanne, vuoro)
     paras = (0,"")
     if fenJono in siirto_taulu:
         paras = siirto_taulu[fenJono]
+    #
     arviot = []
     for siirto in siirrot:
+        #Jätetään paras siirto pois jotta ei arvioida kahdesti
         if siirto == paras[1]:
             pass
+            #
         else:
             nappula = kone_siirto(pelitilanne, siirto, vuoro)
             arviot.append((arvioi_tilanne(pelitilanne, siirrot, vuoro)*(-1), siirto))
@@ -123,8 +127,10 @@ def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_t
     if vuoro == 1:
         arviot.sort(reverse=True)
         arvo = (-500000,"")
+        #Siirretään paras siirto ensimmäiseksi jos löytyi
         if paras[1] != "":
             arviot = [paras]+arviot
+        #
         for siirto in arviot:
             nappula = kone_siirto(pelitilanne, siirto[1], vuoro)
             temp = tekoalya(pelitilanne, syvyys-1, alpha, beta, 0, (siirto[0], siirto[1]), siirto_taulu)
@@ -134,7 +140,9 @@ def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_t
             alpha = max(arvo[0], alpha)
             if arvo[0] >= beta:
                 break
+        #Tallennetaan arvo tauluun
         siirto_taulu[fenJono] = arvo
+        #
         return arvo
     else:
         arviot.sort()
