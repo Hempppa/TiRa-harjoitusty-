@@ -105,7 +105,8 @@ def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_t
     Returns:
         tuple(int, string): palauttaa tuplen joka kuvailee parasta siirtoa ja sen arvoa
     """
-    if syvyys == 0 or not (-25000 < edellinen_siirto[0] and edellinen_siirto[0] < 25000):
+    #
+    if syvyys == 0 or not (-25000 > edellinen_siirto[0] or edellinen_siirto[0] > 25000):
         return edellinen_siirto
     siirrot = kone_kaikki_siirrot(pelitilanne, vuoro)
     arviot = []
@@ -153,7 +154,7 @@ def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_t
 def tekoalyb(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_taulu):
     """Sama kuin tekoalya mutta pelaa valkoisilla napeilla, varmaan lopullisessa versiossa yhdistän nämä.
     """
-    if syvyys == 0 or not (-25000 > edellinen_siirto[0] or edellinen_siirto[0] < 25000):
+    if syvyys == 0 or not (-25000 > edellinen_siirto[0] or edellinen_siirto[0] > 25000):
         return edellinen_siirto
     siirrot = kone_kaikki_siirrot(pelitilanne, vuoro)
     arviot = []
