@@ -22,7 +22,6 @@ def alku():
     """
     print("Pelistä voi poistua kirjoittamalla quit")
     print("Peli ei tunnista minkään näköisiä erikoissiirtoja")
-    print("hetkellä jos tekoäly aloittaa sillä kestää merkittävästi kauemmin laskea siirto")
     while True:
         valinta = input("Kaksinpeli (2p) vai tekoalya vastaan (1p): ")
         if valinta in ("quit", "q"):
@@ -107,20 +106,24 @@ def yksinpeli():
         else:
             print()
             print("miettii.....")
+            #Ennen looppia määrätään ensimmäisen iteraation syvyys ja tyhjä siirtotaulu joka annetaan tekoaly funktioille
             ihan_alku = time.time()
             syvyys = 2
             siirto_taulu = {}
             while True:
+                print(syvyys)
                 alku_aika = time.time()
                 if aly_vuoro == 1:
-                    siirto = tekoalya(pelitilanne, syvyys, -500000, 500000, aly_vuoro, (0, ""), siirto_taulu)
+                    siirto = tekoalya(pelitilanne, syvyys, -5000000, 5000000, aly_vuoro, (0, ""), siirto_taulu)
                 else:
-                    siirto = tekoalyb(pelitilanne, syvyys, -500000, 500000, aly_vuoro, (0, ""), siirto_taulu)
+                    siirto = tekoalyb(pelitilanne, syvyys, -5000000, 5000000, aly_vuoro, (0, ""), siirto_taulu)
                 loppu_aika = time.time()
+                #Jos aikaa iteraation laskemiseen kesti yli kokonaisluvun osoittama määrä sekunneissa niin looppi katkaistaan
                 if loppu_aika-alku_aika > 5:
                     break
                 syvyys += 1
             ihan_loppu = time.time()
+            #
             print("Valmis! siirto; ", siirto[0], siirto[1])
             print("Aikaa miettimiseen kului: ", ihan_loppu-ihan_alku, "s")
             print("Iteraatioita: ", syvyys)

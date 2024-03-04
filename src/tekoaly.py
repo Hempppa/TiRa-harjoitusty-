@@ -105,23 +105,25 @@ def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_t
     Returns:
         tuple(int, string): palauttaa tuplen joka kuvailee parasta siirtoa ja sen arvoa
     """
-    #
-    if syvyys == 0 or not (-25000 > edellinen_siirto[0] or edellinen_siirto[0] > 25000):
+    if syvyys == 0 or -25000 > edellinen_siirto[0] or edellinen_siirto[0] > 25000:
         return edellinen_siirto
     siirrot = kone_kaikki_siirrot(pelitilanne, vuoro)
-    arviot = []
     fenJono = pelitilanne_to_simplified_FEN(pelitilanne, vuoro)
-    paras = ""
+    paras = (0,"")
     if fenJono in siirto_taulu:
         paras = siirto_taulu[fenJono]
+    arviot = []
     for siirto in siirrot:
-        nappula = kone_siirto(pelitilanne, siirto, vuoro)
-        arviot.append((arvioi_tilanne(pelitilanne, siirrot, vuoro)*(-1), siirto))
-        kone_peru(pelitilanne, siirto, nappula, vuoro)
+        if siirto == paras[1]:
+            pass
+        else:
+            nappula = kone_siirto(pelitilanne, siirto, vuoro)
+            arviot.append((arvioi_tilanne(pelitilanne, siirrot, vuoro)*(-1), siirto))
+            kone_peru(pelitilanne, siirto, nappula, vuoro)
     if vuoro == 1:
         arviot.sort(reverse=True)
         arvo = (-500000,"")
-        if paras :
+        if paras[1] != "":
             arviot = [paras]+arviot
         for siirto in arviot:
             nappula = kone_siirto(pelitilanne, siirto[1], vuoro)
@@ -137,7 +139,7 @@ def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_t
     else:
         arviot.sort()
         arvo = (500000, "")
-        if paras :
+        if paras[1] != "":
             arviot = [paras]+arviot
         for siirto in arviot:
             nappula = kone_siirto(pelitilanne, siirto[1], vuoro)
@@ -154,22 +156,25 @@ def tekoalya(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_t
 def tekoalyb(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_taulu):
     """Sama kuin tekoalya mutta pelaa valkoisilla napeilla, varmaan lopullisessa versiossa yhdistän nämä.
     """
-    if syvyys == 0 or not (-25000 > edellinen_siirto[0] or edellinen_siirto[0] > 25000):
+    if syvyys == 0 or -25000 > edellinen_siirto[0] or edellinen_siirto[0] > 25000:
         return edellinen_siirto
     siirrot = kone_kaikki_siirrot(pelitilanne, vuoro)
     arviot = []
     fenJono = pelitilanne_to_simplified_FEN(pelitilanne, vuoro)
-    paras = ""
+    paras = (0,"")
     if fenJono in siirto_taulu:
         paras = siirto_taulu[fenJono]
     for siirto in siirrot:
-        nappula = kone_siirto(pelitilanne, siirto, vuoro)
-        arviot.append((arvioi_tilanne(pelitilanne, siirrot, vuoro), siirto))
-        kone_peru(pelitilanne, siirto, nappula, vuoro)
+        if siirto == paras[1]:
+            pass
+        else:
+            nappula = kone_siirto(pelitilanne, siirto, vuoro)
+            arviot.append((arvioi_tilanne(pelitilanne, siirrot, vuoro), siirto))
+            kone_peru(pelitilanne, siirto, nappula, vuoro)
     if vuoro == 0:
         arviot.sort(reverse=True)
         arvo = (-500000,"")
-        if paras :
+        if paras[1] != "":
             arviot = [paras]+arviot
         for siirto in arviot:
             nappula = kone_siirto(pelitilanne, siirto[1], vuoro)
@@ -185,7 +190,7 @@ def tekoalyb(pelitilanne, syvyys, alpha, beta, vuoro, edellinen_siirto, siirto_t
     else:
         arviot.sort()
         arvo = (500000, "")
-        if paras :
+        if paras[1] != "":
             arviot = [paras]+arviot
         for siirto in arviot:
             nappula = kone_siirto(pelitilanne, siirto[1], vuoro)

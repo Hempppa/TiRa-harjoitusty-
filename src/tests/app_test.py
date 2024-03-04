@@ -372,7 +372,7 @@ class Test_tekoaly(unittest.TestCase):
                     [chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817)],
                     [chr(9814),chr(9816),chr(9815),chr(9813),chr(9812),chr(9815),chr(9816),chr(9814)]]
         try:
-            siirto = tekoalya(Pelilauta, 3, -500000, 500000, 1, (0,""), {})
+            siirto = tekoalya(Pelilauta, 3, -5000000, 5000000, 1, (0,""), {})
         except:
             self.assertTrue(False)
             return
@@ -389,7 +389,7 @@ class Test_tekoaly(unittest.TestCase):
                      [chr(9817),"-",chr(9820),"-","-","-","-",chr(9817)],
                      ["-",chr(9812),"-",chr(9814),"-",chr(9814),"-","-"]]
         try:
-            siirto = tekoalya(Pelilauta, 3, -500000, 500000, 1, (0,""), {})
+            siirto = tekoalya(Pelilauta, 3, -5000000, 5000000, 1, (0,""), {})
         except:
             self.assertTrue(False)
             return
@@ -410,7 +410,7 @@ class Test_tekoaly(unittest.TestCase):
         i = 0
         while i < len(siirrot):
             try:
-                siirto = tekoalya(Pelilauta, 3, -500000, 500000, 1, (0,""), {})
+                siirto = tekoalya(Pelilauta, 3, -5000000, 5000000, 1, (0,""), {})
             except:
                 self.assertTrue(False)
                 return
@@ -436,7 +436,7 @@ class Test_tekoaly(unittest.TestCase):
                     [chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817)],
                     [chr(9814),chr(9816),chr(9815),chr(9813),chr(9812),chr(9815),chr(9816),chr(9814)]]
         try:
-            siirto = tekoalyb(Pelilauta, 3, -500000, 500000, 0, (0,""), {})
+            siirto = tekoalyb(Pelilauta, 3, -5000000, 5000000, 0, (0,""), {})
         except:
             self.assertTrue(False)
             return
@@ -453,7 +453,7 @@ class Test_tekoaly(unittest.TestCase):
                      [chr(9817),"-",chr(9820),"-","-","-","-",chr(9817)],
                      ["-",chr(9812),"-",chr(9814),"-",chr(9814),"-","-"]]
         try:
-            siirto = tekoalyb(Pelilauta, 3, -500000, 500000, 0, (0,""), {})
+            siirto = tekoalyb(Pelilauta, 3, -5000000, 5000000, 0, (0,""), {})
         except:
             self.assertTrue(False)
         tilanne = matti(Pelilauta, 0)
@@ -473,7 +473,7 @@ class Test_tekoaly(unittest.TestCase):
         i = 0
         while i < len(siirrot):
             try:
-                siirto = tekoalyb(Pelilauta, 3, -500000, 500000, 0, (0,""), {})
+                siirto = tekoalyb(Pelilauta, 3, -5000000, 5000000, 0, (0,""), {})
             except:
                 self.assertTrue(False)
                 return
