@@ -108,8 +108,9 @@ def yksinpeli():
             print("miettii.....")
             #Ennen looppia määrätään ensimmäisen iteraation syvyys ja tyhjä siirtotaulu joka annetaan tekoaly funktioille
             ihan_alku = time.time()
-            syvyys = 2
+            syvyys = 1
             siirto_taulu = {}
+            print("Syvyys: ...")
             while True:
                 print(syvyys)
                 alku_aika = time.time()

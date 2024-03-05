@@ -84,10 +84,8 @@ def kone_peru(pelitilanne, siirto, nappula, vuoro):
     if len(siirto) > 5:
         if siirto[4] == "en":
             if vuoro == 0:
-                poistettu = chr(9823)
                 pelitilanne[siirto[3]-1][siirto[2]] = nappula
             else:
-                poistettu = chr(9817)
                 pelitilanne[siirto[3]+1][siirto[2]] = nappula
             pelitilanne[siirto[1]][siirto[0]] = pelitilanne[siirto[3]][siirto[2]]
             pelitilanne[siirto[3]][siirto[2]] = "-"
