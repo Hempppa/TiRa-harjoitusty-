@@ -3,17 +3,16 @@ from tekoaly import tekoalya, tekoalyb, arvioi_tilanne
 from pelilogiikka import tee_siirto, kone_siirto, matti
 #ns config asetukset, tästä voi pääasiassa vain aloitusvuoron vaihtaa, uusien nappuloidne tai
 #pelilaudan koon vaihtaminen tässä versiossa rikkoo pelin
-PELILAUTA = [[chr(9820),chr(9822),chr(9821),chr(9819),chr(9818),chr(9821),chr(9822),chr(9820)],
-            [chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823),chr(9823)],
+PELILAUTA = [["R","N","B","Q","K","B","N","R"],
+            ["P","P","P","P","P","P","P","P"],
             ["-","-","-","-","-","-","-","-"],
             ["-","-","-","-","-","-","-","-"],
             ["-","-","-","-","-","-","-","-"],
             ["-","-","-","-","-","-","-","-"],
-            [chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817),chr(9817)],
-            [chr(9814),chr(9816),chr(9815),chr(9813),chr(9812),chr(9815),chr(9816),chr(9814)]]
-
-ALKUVUORO = 0 #kaksinpelissä kumpi puoli aloittaa
-LASKENTA_SYVYYS = 5 #Kuinka kauas tekoäly laskee siirtoja, kannattaa varmaan pitää välillä 3 -- 5
+            ["p","p","p","p","p","p","p","p"],
+            ["r","n","b","q","k","b","n","r"]]
+KAANNOSTAULU = {"p":chr(9817), "r":chr(9814), "n":chr(9816), "b":chr(9815), "q":chr(9813), "k":chr(9812),
+                "P":chr(9823), "R":chr(9820), "N":chr(9822), "B":chr(9821), "Q":chr(9819), "K":chr(9818)}
 
 #!!! Puuttuu vielä mahdolliset erikoisliikkeet
 
@@ -39,8 +38,10 @@ def yksinpeli():
     Returns:
         string: palauttaa 'quit' jos se jossain kohtaa konsoliin vastataan
     """
-    vuoro = ALKUVUORO
+    vuoro = 0
     pelitilanne = []
+    valkoiset_syoty = []
+    mustat_syoty = []
     for rivi in PELILAUTA:
         pelitilanne.append(rivi[:])
     while True:
@@ -58,20 +59,60 @@ def yksinpeli():
     siirto = (0, "")
     while True:
         print()
-        print("  --------------------")
-        for y in range(8):
-            rivi = str(y+1) + " |"
-            for x in range(8):
-                if pelitilanne[y][x] == "-":
-                    if (x+y)%2 == 0:
-                        rivi += " " + chr(9633)
+        if pelaaja == 0:
+            print("  --------------------")
+            for y in range(8):
+                rivi = str(y+1) + " |"
+                for x in range(8):
+                    if pelitilanne[y][x] == "-":
+                        if (x+y)%2 == 0:
+                            rivi += " " + chr(9633)
+                        else:
+                            rivi += " " + chr(9639)
                     else:
-                        rivi += " " + chr(9639)
-                else:
-                    rivi +=  " " + pelitilanne[y][x]
-            print(rivi + "  |")
-        print("  --------------------")
-        print("    a b c d e f g h")
+                        rivi +=  " " + KAANNOSTAULU[pelitilanne[y][x]]
+                print(rivi + "  |")
+            print("  --------------------")
+            print("    a b c d e f g h")
+            print()
+            ms = ""
+            for merkki in mustat_syoty:
+                ms += KAANNOSTAULU[merkki] + " "
+            vs = ""
+            for merkki in valkoiset_syoty:
+                vs += KAANNOSTAULU[merkki] + " "
+            print(ms)
+            print(vs)
+        else:
+            kaannetty = []
+            for rivi in pelitilanne:
+                temp = rivi[:]
+                temp.reverse()
+                kaannetty.append(temp)
+            kaannetty.reverse()
+            print("  --------------------")
+            for y in range(8):
+                rivi = str(8-y) + " |"
+                for x in range(8):
+                    if pelitilanne[y][x] == "-":
+                        if (x+y)%2 == 0:
+                            rivi += " " + chr(9633)
+                        else:
+                            rivi += " " + chr(9639)
+                    else:
+                        rivi +=  " " + KAANNOSTAULU[kaannetty[y][x]]
+                print(rivi + "  |")
+            print("  --------------------")
+            print("    h g f e d c b a")
+            print()
+            ms = ""
+            for merkki in mustat_syoty:
+                ms += KAANNOSTAULU[merkki] + " "
+            vs = ""
+            for merkki in valkoiset_syoty:
+                vs += KAANNOSTAULU[merkki] + " "
+            print(vs)
+            print(ms)
         print()
 
         arvio = arvioi_tilanne(pelitilanne, [], vuoro)
@@ -130,7 +171,7 @@ def yksinpeli():
             print("Aikaa miettimiseen kului: ", ihan_loppu-ihan_alku, "s")
             print("Iteraatioita: ", syvyys)
             if siirto[1] in tilanne[1]:
-                kone_siirto(pelitilanne, siirto[1], aly_vuoro)
+                pois = kone_siirto(pelitilanne, siirto[1], aly_vuoro)
                 if vuoro == 1:
                     vuoro = 0
                 else:
@@ -145,20 +186,68 @@ def kaksinpeli():
     Returns:
         String: voi palauttaa vain 'quit' jolloin pelin suoritus pysähtyy. Jos mitään ei palauteta niin peli jatkuu
     """
-    vuoro = ALKUVUORO
+    vuoro = 0
     pelitilanne = []
+    valkoiset_syoty = []
+    mustat_syoty = []
     for rivi in PELILAUTA:
         pelitilanne.append(rivi[:])
     while True:
         print()
-        print("  ----------------------------")
-        for y in range(8):
-            rivi = str(y+1) + " | "
-            for x in range(8):
-                rivi += " " + pelitilanne[y][x] + " "
-            print(rivi + " | ")
-        print("  ----------------------------")
-        print("     a"," b"," c"," d"," e"," f"," g"," h")
+        if vuoro == 0:
+            print("  --------------------")
+            for y in range(8):
+                rivi = str(y+1) + " |"
+                for x in range(8):
+                    if pelitilanne[y][x] == "-":
+                        if (x+y)%2 == 0:
+                            rivi += " " + chr(9633)
+                        else:
+                            rivi += " " + chr(9639)
+                    else:
+                        rivi +=  " " + KAANNOSTAULU[pelitilanne[y][x]]
+                print(rivi + "  |")
+            print("  --------------------")
+            print("    a b c d e f g h")
+            print()
+            ms = ""
+            for merkki in mustat_syoty:
+                ms += KAANNOSTAULU[merkki] + " "
+            vs = ""
+            for merkki in valkoiset_syoty:
+                vs += KAANNOSTAULU[merkki] + " "
+            print(ms)
+            print(vs)
+        else:
+            kaannetty = []
+            for rivi in pelitilanne:
+                temp = rivi[:]
+                temp.reverse()
+                kaannetty.append(temp)
+            kaannetty.reverse()
+            print("  --------------------")
+            for y in range(8):
+                rivi = str(8-y) + " |"
+                for x in range(8):
+                    if pelitilanne[y][x] == "-":
+                        if (x+y)%2 == 0:
+                            rivi += " " + chr(9633)
+                        else:
+                            rivi += " " + chr(9639)
+                    else:
+                        rivi +=  " " + KAANNOSTAULU[kaannetty[y][x]]
+                print(rivi + "  |")
+            print("  --------------------")
+            print("    h g f e d c b a")
+            print
+            ms = ""
+            for merkki in mustat_syoty:
+                ms += KAANNOSTAULU[merkki] + " "
+            vs = ""
+            for merkki in valkoiset_syoty:
+                vs += KAANNOSTAULU[merkki] + " "
+            print(vs)
+            print(ms)
         print()
         arvio = arvioi_tilanne(pelitilanne, [], vuoro)
         print("Pelikenttä arvio: ", arvio/100)
@@ -180,10 +269,14 @@ def kaksinpeli():
         if siirto in ("quit", "q"):
             return "quit"
         if siirto in siedettavammat:
-            tee_siirto(pelitilanne, siirto)
+            pois = tee_siirto(pelitilanne, siirto)
             if vuoro == 1:
+                if pois != "-":
+                    mustat_syoty.append(pois)
                 vuoro = 0
             else:
+                if pois != "-":
+                    valkoiset_syoty.append(pois)
                 vuoro = 1
         else:
             print("Laiton siirto")
