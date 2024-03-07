@@ -2,7 +2,7 @@
 Muuten kutsuu vain muita funktioita.
 """
 import time
-from tekoaly import tekoalya, tekoalyb, arvioi_tilanne
+from tekoaly import tekoalya, tekoalyb, arvioi_tilanne, update_FEN
 from pelilogiikka import tee_siirto, kone_siirto, matti
 #ns config asetukset, tästä voi pääasiassa vain aloitusvuoron vaihtaa, uusien nappuloidne tai
 #pelilaudan koon vaihtaminen tässä versiossa rikkoo pelin
@@ -17,6 +17,7 @@ PELILAUTA = [["R","N","B","Q","K","B","N","R"],
 KAANNOSTAULU = {"p":chr(9817), "r":chr(9814), "n":chr(9816), "b":chr(9815), "q":chr(9813), "k":chr(9812),
                 "P":chr(9823), "R":chr(9820), "N":chr(9822), "B":chr(9821), "Q":chr(9819), "K":chr(9818)}
 TYHJA = "-"
+ALKUID = "RNBQKBNRPPPPPPPP32pppppppprnbqkbnrKQkq--"
 
 #!!! Puuttuu vielä ohesta 
 
@@ -25,7 +26,8 @@ def alku():
     """
     print("Pelistä voi poistua kirjoittamalla quit")
     print("Peli ei tunnista ohestalyöntiä tai tornitusta")
-    print("Siirrot syötetään muodossa x1 y1 x2 y2 eli d7d5. Korottamisen siirrolle lisää haluttu pelinappula perään, esim. d6d7Q tai d1d0p.")
+    print("Siirrot syötetään muodossa x1 y1 x2 y2 eli 'd7d5'. Korottamisen siirrolle lisää haluttu pelinappula perään, esim. 'd6d7Q' tai 'd1d0p'.")
+    print("Tornitusta varten syötä '00' jos kuninkaan puolelle ja '000' jos kuningattaren")
     print("Korottamisessa käyettävät nappulat;")
     print(KAANNOSTAULU)
     while True:
@@ -49,6 +51,7 @@ def yksinpeli():
     pelitilanne = []
     valkoiset_syoty = []
     mustat_syoty = []
+    peliID = ALKUID[:]
     for rivi in PELILAUTA:
         pelitilanne.append(rivi[:])
     while True:
@@ -65,12 +68,15 @@ def yksinpeli():
             break
     siirto = (0, "")
     while True:
+        
+        peliID = update_FEN(pelitilanne, vuoro, peliID)
+
         print()
-        tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, pelaaja)
+        tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, pelaaja, peliID)
         print()
 
         print("Pelaajan", vuoro+1, "vuoro")
-        tilanne = matti(pelitilanne, vuoro)
+        tilanne = matti(pelitilanne, vuoro, peliID)
         if tilanne[0]:
             print()
             if tilanne[2]:
@@ -83,14 +89,22 @@ def yksinpeli():
             return ""
         siedettavammat = []
         for siirto in tilanne[1]:
-            siedettavammat.append(chr(siirto[0]+97) + str(siirto[1]+1) + chr(siirto[2]+97) + str(siirto[3]+1))
+            if len(siirto) > 4:
+                siedettavammat.append(chr(siirto[0]+97) + str(siirto[1]+1) + chr(siirto[2]+97) + str(siirto[3]+1) + siirto[4])
+            elif len(siirto) < 4:
+                if len(siirto) < 3:
+                    siedettavammat.append("00")
+                else:
+                    siedettavammat.append("000")
+            else:
+                siedettavammat.append(chr(siirto[0]+97) + str(siirto[1]+1) + chr(siirto[2]+97) + str(siirto[3]+1))
         print("mahdolliset siirrot ", siedettavammat)
         if vuoro == pelaaja:
             siirtop = input("Syötä siirto: ")
             if siirtop in ("quit", "q"):
                 return "quit"
             if siirtop in siedettavammat:
-                pois = tee_siirto(pelitilanne, siirtop)
+                pois, peliID = tee_siirto(pelitilanne, siirtop, vuoro, peliID)
                 if vuoro == 1:
                     if pois != TYHJA:
                         valkoiset_syoty.append(pois)
@@ -113,9 +127,9 @@ def yksinpeli():
                 print(syvyys)
                 alku_aika = time.time()
                 if aly_vuoro == 1:
-                    siirto = tekoalya(pelitilanne, syvyys, -5000000, 5000000, aly_vuoro, (0, ""), siirto_taulu)
+                    siirto = tekoalya(pelitilanne, syvyys, -5000000, 5000000, 1, (0, ""), siirto_taulu, peliID)
                 else:
-                    siirto = tekoalyb(pelitilanne, syvyys, -5000000, 5000000, aly_vuoro, (0, ""), siirto_taulu)
+                    siirto = tekoalyb(pelitilanne, syvyys, -5000000, 5000000, 0, (0, ""), siirto_taulu, peliID)
                 loppu_aika = time.time()
                 #Jos aikaa iteraation laskemiseen kesti yli kokonaisluvun osoittama määrä sekunneissa niin looppi katkaistaan
                 if loppu_aika-alku_aika > 5:
@@ -128,7 +142,7 @@ def yksinpeli():
             print("Aikaa miettimiseen kului: ", ihan_loppu-ihan_alku, "s")
             print("Iteraatioita: ", syvyys)
             if siirto[1] in tilanne[1]:
-                pois = kone_siirto(pelitilanne, siirto[1])
+                pois, peliID = kone_siirto(pelitilanne, siirto[1], vuoro, peliID)
                 if vuoro == 1:
                     if pois != TYHJA:
                         valkoiset_syoty.append(pois)
@@ -151,16 +165,18 @@ def kaksinpeli():
     pelitilanne = []
     valkoiset_syoty = []
     mustat_syoty = []
+    peliID = ALKUID[:]
     for rivi in PELILAUTA:
         pelitilanne.append(rivi[:])
     while True:
+        peliID = update_FEN(pelitilanne, vuoro, peliID)
         print()
-        tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, vuoro)
+        tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, vuoro, peliID)
         print()
         arvio = arvioi_tilanne(pelitilanne, [], [])
         print("Pelikenttä arvio: ", arvio/100)
         print("Pelaajan", vuoro+1, "vuoro")
-        tilanne = matti(pelitilanne, vuoro)
+        tilanne = matti(pelitilanne, vuoro, peliID)
         siedettavammat = []
         for siirto in tilanne[1]:
             siedettavammat.append(chr(siirto[0]+97) + str(siirto[1]+1) + chr(siirto[2]+97) + str(siirto[3]+1))
@@ -179,7 +195,7 @@ def kaksinpeli():
         if siirto in ("quit", "q"):
             return "quit"
         if siirto in siedettavammat:
-            pois = tee_siirto(pelitilanne, siirto)
+            pois, peliID = tee_siirto(pelitilanne, siirto, vuoro, peliID)
             if vuoro == 1:
                 if pois != TYHJA:
                     mustat_syoty.append(pois)
@@ -191,8 +207,9 @@ def kaksinpeli():
         else:
             print("Laiton siirto")
 
-def tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, suunta):
+def tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, suunta, peliID):
     if suunta == 0:
+        print("Pelin tunniste:", peliID)
         print("  --------------------")
         for y in range(8):
             rivi = str(y+1) + " |"
@@ -223,6 +240,7 @@ def tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, suunta):
             temp.reverse()
             kaannetty.append(temp)
         kaannetty.reverse()
+        print("Pelin tunniste:", peliID)
         print("  --------------------")
         for y in range(8):
             rivi = str(8-y) + " |"
@@ -237,7 +255,6 @@ def tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, suunta):
             print(rivi + "  |")
         print("  --------------------")
         print("    h g f e d c b a")
-        print()
         ms = ""
         for merkki in mustat_syoty:
             ms += KAANNOSTAULU[merkki] + " "
