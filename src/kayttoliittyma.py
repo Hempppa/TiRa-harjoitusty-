@@ -1,4 +1,4 @@
-"""Nimensä mukaan käyttöliittymään liittyvä tavara eli pääasiassa tulostaa pelikentän, mutta vastaa myös vuoron vaihtamisesta.
+l"""Nimensä mukaan käyttöliittymään liittyvä tavara eli pääasiassa tulostaa pelikentän, mutta vastaa myös vuoron vaihtamisesta.
 Muuten kutsuu vain muita funktioita.
 """
 import time
@@ -153,9 +153,9 @@ def yksinpeli():
                 print(syvyys, end=": ")
                 alku_aika = time.time()
                 if aly_vuoro == 1:
-                    siirto = tekoalya(pelitilanne, syvyys, -5000000, 5000000, 1, (0, (None, None, None, None)), siirto_taulu, peli_id)
+                    siirto = tekoalya(pelitilanne, syvyys, -5000000, 5000000, 1, edellinen, siirto_taulu, peli_id)
                 else:
-                    siirto = tekoalyb(pelitilanne, syvyys, -5000000, 5000000, 0, (0, (None, None, None, None)), siirto_taulu, peli_id)
+                    siirto = tekoalyb(pelitilanne, syvyys, -5000000, 5000000, 0, edellinen, siirto_taulu, peli_id)
                 loppu_aika = time.time()
                 #Jos aikaa iteraation laskemiseen kesti yli kokonaisluvun osoittama määrä sekunneissa niin looppi katkaistaan
                 print(loppu_aika-alku_aika, "s")
@@ -324,7 +324,7 @@ def botti_v_botti():
             while True:
                 print(syvyys, end=": ")
                 alku_aika = time.time()
-                siirto = tekoalya(pelitilanne, syvyys, -5000000, 5000000, 1, (0, (None, None, None, None)), siirto_taulu, peli_id)
+                siirto = tekoalya(pelitilanne, syvyys, -5000000, 5000000, 1, edellinen, siirto_taulu, peli_id)
                 loppu_aika = time.time()
                 print(loppu_aika-alku_aika, "s")
                 #Jos aikaa iteraation laskemiseen kesti yli kokonaisluvun osoittama määrä sekunneissa niin looppi katkaistaan
@@ -362,7 +362,7 @@ def botti_v_botti():
             while True:
                 print(syvyys, end=": ")
                 alku_aika = time.time()
-                siirto = tekoalyb(pelitilanne, syvyys, -5000000, 5000000, 0, (0, (None, None, None, None)), siirto_taulu, peli_id)
+                siirto = tekoalyb(pelitilanne, syvyys, -5000000, 5000000, 0, edellinen, siirto_taulu, peli_id)
                 loppu_aika = time.time()
                 #Jos aikaa iteraation laskemiseen kesti yli kokonaisluvun osoittama määrä sekunneissa niin looppi katkaistaan
                 print(loppu_aika-alku_aika, "s")
