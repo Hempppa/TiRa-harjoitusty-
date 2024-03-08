@@ -7,11 +7,9 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from pelilogiikka import tee_siirto, kone_siirto, kone_ihan_kaikki_wt_siirrot, matti, onko_shakki, kone_peru
-from tekoaly import update_FEN
+from pelilogiikka import kone_siirto, kone_ihan_kaikki_wt_siirrot, matti, onko_shakki, kone_peru
 
 class Test_tee_siirto(unittest.TestCase):
-    # Testaa siis sekä tee_siirto että kone_siirto
     def setUp(self) -> None:
         self.Pelilauta = [["R","N","B","Q","K","B","N","R"],
                         ["P","P","P","P","P","P","P","P"],
@@ -22,51 +20,6 @@ class Test_tee_siirto(unittest.TestCase):
                         ["p","p","p","p","p","p","p","p"],
                         ["r","n","b","q","k","b","n","r"]]
         self.pelinappulat = [["p","r","n","b","q","k"],["P","R","N","B","Q","K"]]
-    
-    def test_tekee_siirron(self):
-        temp = [["R","N","B","Q","K","B","N","R"],
-                ["P","P","P","P","P","P","P","P"],
-                ["-","-","-","-","-","-","-","-"],
-                ["-","-","-","-","-","-","-","-"],
-                ["-","-","-","p","-","-","-","-"],
-                ["-","-","-","-","-","-","-","-"],
-                ["p","p","p","-","p","p","p","p"],
-                ["r","n","b","q","k","b","n","r"]]
-        tee_siirto(self.Pelilauta, "d7d5", 0)
-        self.assertEqual(self.Pelilauta, temp)
-
-    def test_palauttaa_oikeat_nappulat(self):
-        nappula1, peliID = tee_siirto(self.Pelilauta, "d7d5", 0)
-        nappula2, peliID = tee_siirto(self.Pelilauta, "d7d5", 0)
-        nappula3, peliID = tee_siirto(self.Pelilauta, "e7g1", 0)
-        self.assertEqual(nappula1, "-")
-        self.assertEqual(nappula2, "p")
-        self.assertEqual(nappula3, "N")
-    
-    def test_korotus_toimii(self):
-        temp = [["R","N","B","q","K","B","N","R"],
-                ["P","P","P","P","P","P","P","P"],
-                ["-","-","-","-","-","-","-","-"],
-                ["-","-","-","-","-","-","-","-"],
-                ["-","-","-","-","-","-","-","-"],
-                ["-","-","-","-","-","-","-","-"],
-                ["p","p","p","-","p","p","p","p"],
-                ["r","n","b","q","k","b","n","r"]]
-        tee_siirto(self.Pelilauta, "d7d1q", 0)
-        self.assertEqual(self.Pelilauta, temp)
-
-    def test_tornitus_toimii(self):
-        temp = [["R","N","B","Q","K","B","N","R"],
-                ["P","P","P","P","P","P","P","P"],
-                ["-","-","-","-","-","-","-","-"],
-                ["-","-","-","-","-","-","-","-"],
-                ["-","-","-","-","-","-","-","-"],
-                ["-","-","-","-","-","-","-","-"],
-                ["p","p","p","p","p","p","p","p"],
-                ["r","n","b","q","-","r","k","-"]]
-        pois, peliID = tee_siirto(self.Pelilauta, "00", 0, "KQkq--")
-        self.assertEqual(self.Pelilauta, temp)
-        self.assertEqual(peliID, "KQ----")
 
     def test_kone_tekee_siirron(self):
         temp = [["R","N","B","Q","K","B","N","R"],
@@ -100,7 +53,7 @@ class Test_tee_siirto(unittest.TestCase):
         kone_siirto(self.Pelilauta, (3,6,3,0,"q"), 0)
         self.assertEqual(self.Pelilauta, temp)
 
-    def test_kone_tornitus_toimii(self):
+    def test_kone_tornitus_toimii1(self):
         temp = [["R","N","B","Q","K","B","N","R"],
                 ["P","P","P","P","P","P","P","P"],
                 ["-","-","-","-","-","-","-","-"],
@@ -112,6 +65,67 @@ class Test_tee_siirto(unittest.TestCase):
         pois, peliID = kone_siirto(self.Pelilauta, "00", 0, "KQkq--")
         self.assertEqual(self.Pelilauta, temp)
         self.assertEqual(peliID, "KQ----")
+    
+    def test_kone_tornitus_toimii2(self):
+        temp = [["R","N","B","Q","K","B","N","R"],
+                ["P","P","P","P","P","P","P","P"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["p","p","p","p","p","p","p","p"],
+                ["-","n","k","r","-","b","n","r"]]
+        pois, peliID = kone_siirto(self.Pelilauta, "000", 0, "KQkq--")
+        self.assertEqual(self.Pelilauta, temp)
+        self.assertEqual(peliID, "KQ----")
+
+    def test_kone_tornitus_toimii3(self):
+        temp = [["-","N","K","R","-","B","N","R"],
+                ["P","P","P","P","P","P","P","P"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["p","p","p","p","p","p","p","p"],
+                ["r","n","b","q","k","b","n","r"]]
+        pois, peliID = kone_siirto(self.Pelilauta, "000", 1, "KQkq--")
+        self.assertEqual(self.Pelilauta, temp)
+        self.assertEqual(peliID, "--kq--")
+
+    def test_kone_tornitus_toimii4(self):
+        temp = [["R","N","B","Q","-","R","K","-"],
+                ["P","P","P","P","P","P","P","P"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["p","p","p","p","p","p","p","p"],
+                ["r","n","b","q","k","b","n","r"]]
+        pois, peliID = kone_siirto(self.Pelilauta, "00", 1, "KQkq--")
+        self.assertEqual(self.Pelilauta, temp)
+        self.assertEqual(peliID, "--kq--")
+
+    def test_kone_ohesta_lyonti_toimii(self):
+        Pelilauta = [["R","N","B","Q","K","B","N","R"],
+                    ["P","P","P","P","P","P","P","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","p","P"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["p","p","p","p","p","p","-","p"],
+                    ["r","n","b","q","k","b","n","r"]]
+        temp = [["R","N","B","Q","K","B","N","R"],
+                ["P","P","P","P","P","P","P","-"],
+                ["-","-","-","-","-","-","-","p"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["p","p","p","p","p","p","-","p"],
+                ["r","n","b","q","k","b","n","r"]]
+        pois, peliID = kone_siirto(Pelilauta, (6,3,7,2,"en"), 0, "KQkq72")
+        self.assertEqual(Pelilauta, temp)
+        self.assertEqual(peliID[-2:], "--")
+        self.assertEqual(pois, "P")
 
 class Test_peru_siirto(unittest.TestCase):
     def setUp(self) -> None:
@@ -136,7 +150,7 @@ class Test_peru_siirto(unittest.TestCase):
         kone_peru(temp, (3,6,3,4), "-", 0)
         self.assertEqual(temp, self.Pelilauta)
     
-    def test_osaa_peruttaa_korotuksen(self):
+    def test_osaa_peruttaa_korotuksen1(self):
         temp = [["R","N","B","q","K","B","N","R"],
                 ["P","P","P","P","P","P","P","P"],
                 ["-","-","-","-","-","-","-","-"],
@@ -147,6 +161,110 @@ class Test_peru_siirto(unittest.TestCase):
                 ["r","n","b","q","k","b","n","r"]]
         kone_peru(temp, (3,6,3,0,"q"), "Q", 0)
         self.assertEqual(temp, self.Pelilauta)
+
+    def test_osaa_peruttaa_korotuksen1(self):
+        Pelilauta = [["R","N","B","Q","K","B","N","R"],
+                    ["P","P","P","P","P","P","P","P"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["p","p","p","p","p","p","p","p"],
+                    ["r","n","b","q","k","-","-","r"]]
+        temp = [["R","N","B","Q","K","B","N","R"],
+                ["P","P","P","P","P","P","P","P"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["p","p","p","p","p","p","p","p"],
+                ["r","n","b","q","-","r","k","-"]]
+        kone_peru(temp, (0,0), "-", 0)
+        self.assertEqual(temp, Pelilauta)
+
+    def test_osaa_peruttaa_korotuksen2(self):
+        Pelilauta = [["R","N","B","Q","K","B","N","R"],
+                    ["P","P","P","P","P","P","P","P"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["p","p","p","p","p","p","p","p"],
+                    ["r","n","-","-","k","b","n","r"]]
+        temp = [["R","N","B","Q","K","B","N","R"],
+                ["P","P","P","P","P","P","P","P"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["p","p","p","p","p","p","p","p"],
+                ["-","n","k","r","-","b","n","r"]]
+        kone_peru(temp, (0,0,0), "-", 0)
+        self.assertEqual(temp, Pelilauta)
+
+    def test_osaa_peruttaa_korotuksen3(self):
+        Pelilauta = [["R","N","B","Q","K","-","-","R"],
+                    ["P","P","P","P","P","P","P","P"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["p","p","p","p","p","p","p","p"],
+                    ["r","n","b","q","k","b","n","r"]]
+        temp = [["R","N","B","Q","-","R","K","-"],
+                ["P","P","P","P","P","P","P","P"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["p","p","p","p","p","p","p","p"],
+                ["r","n","b","q","k","b","n","r"]]
+        kone_peru(temp, (0,0), "-", 1)
+        self.assertEqual(temp, Pelilauta)
+
+    def test_osaa_peruttaa_korotuksen4(self):
+        Pelilauta = [["R","N","-","-","K","B","N","R"],
+                    ["P","P","P","P","P","P","P","P"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["p","p","p","p","p","p","p","p"],
+                    ["r","n","b","q","k","b","n","r"]]
+        temp = [["-","N","K","R","-","B","N","R"],
+                ["P","P","P","P","P","P","P","P"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["p","p","p","p","p","p","p","p"],
+                ["r","n","b","q","k","b","n","r"]]
+        kone_peru(temp, (0,0,0), "-", 1)
+        self.assertEqual(temp, Pelilauta)
+
+    def test_osaa_peruttaa_ohestalyonnin(self):
+        Pelilauta = [["R","N","B","Q","K","B","N","R"],
+                    ["P","P","P","P","P","P","P","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","p","P"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["p","p","p","p","p","p","-","p"],
+                    ["r","n","b","q","k","b","n","r"]]
+        temp = [["R","N","B","Q","K","B","N","R"],
+                ["P","P","P","P","P","P","P","-"],
+                ["-","-","-","-","-","-","-","p"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["-","-","-","-","-","-","-","-"],
+                ["p","p","p","p","p","p","-","p"],
+                ["r","n","b","q","k","b","n","r"]]
+        for rivi in temp:
+            print(temp)
+        for rivi in Pelilauta:
+            print(Pelilauta)
+        kone_peru(temp, (6,3,7,2,"en"), "P", 0)
+        self.assertEqual(temp, Pelilauta)
 
 class Test_onko_shakki(unittest.TestCase):
     def setUp(self) -> None:
@@ -467,7 +585,7 @@ class Test_kone_ihan_kaikki_siirrot(unittest.TestCase):
                     ["-","-","-","-","-","-","-","-"],
                     ["p","p","p","p","p","p","p","p"],
                     ["r","-","-","-","k","-","-","r"]]
-        mita_on = kone_ihan_kaikki_wt_siirrot(Pelilauta, "KQkq--")
+        mita_on = kone_ihan_kaikki_wt_siirrot(Pelilauta, (None,None,None,None), "KQkq--")
         pitaisi_olla = [(0,0),(0,0,0)]
         for siirto in pitaisi_olla:
             self.assertTrue(siirto in mita_on[0])
@@ -483,7 +601,7 @@ class Test_kone_ihan_kaikki_siirrot(unittest.TestCase):
                     ["-","-","-","-","-","-","-","-"],
                     ["p","p","p","-","p","p","p","p"],
                     ["r","-","-","-","k","b","n","r"]]
-        mita_on = kone_ihan_kaikki_wt_siirrot(Pelilauta, "KQkq--")
+        mita_on = kone_ihan_kaikki_wt_siirrot(Pelilauta, (None,None,None,None), "KQkq--")
         loytyy = False
         for siirto in mita_on[0]:
             if siirto == (0,0,0):
@@ -499,9 +617,26 @@ class Test_kone_ihan_kaikki_siirrot(unittest.TestCase):
                     ["-","-","-","-","-","-","-","-"],
                     ["p","p","p","p","p","p","p","p"],
                     ["r","n","b","q","k","b","n","r"]]
-        mita_on = kone_ihan_kaikki_wt_siirrot(Pelilauta, "-Qkq--")
+        mita_on = kone_ihan_kaikki_wt_siirrot(Pelilauta, (None,None,None,None), "-Qkq--")
         loytyy = False
         for siirto in mita_on[1]:
             if siirto == (0,0):
                 loytyy = True
         self.assertTrue(not loytyy)
+
+    def test_sisaltaa_ohestalyonnin(self):
+        Pelilauta = [["R","N","B","Q","K","B","N","R"],
+                    ["P","P","P","p","P","P","P","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","p","P"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["-","-","-","-","-","-","-","-"],
+                    ["p","p","p","p","p","p","-","p"],
+                    ["r","n","b","q","k","b","n","r"]]
+        mita_on = kone_ihan_kaikki_wt_siirrot(Pelilauta, (7,1,7,3), "-Qkq--")
+        loytyy = False
+        for siirto in mita_on[0]:
+            if siirto == (6,3,7,2,"en"):
+                loytyy = True
+        self.assertTrue(loytyy)
+        self.assertEqual(mita_on[4][-2:], "72")
