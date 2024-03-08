@@ -185,8 +185,9 @@ def onko_shakki(pelitilanne, vuoro, edellinen_siirto=(None,None,None,None), peli
             if pelitilanne[y][x] == kingi:
                 sijainti = (x,y)
     for siirto in vastapuoli:
-        if siirto[2] == sijainti[0] and siirto[3] == sijainti[1]:
-            return True
+        if len(siirto) == 4:
+            if siirto[2] == sijainti[0] and siirto[3] == sijainti[1]:
+                return True
     return False
 
 def kone_ihan_kaikki_wt_siirrot(pelitilanne, edellinen_siirto=(None,None,None,None), peli_id="------"):
