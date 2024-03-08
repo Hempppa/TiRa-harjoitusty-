@@ -47,7 +47,7 @@ def arvioi_tilanne(pelitilanne, edellinen_siirto=(None,None,None,None), siirrot=
             if pelitilanne[y][x] == PELINAPPULAT[0][0]:
                 materiaali += 100
                 doubled_v.add(x)
-                if not ((x > 0 and pelitilanne[y-1][x-1] == PELINAPPULAT[0][0]) or (x < 7 and pelitilanne[y-1][x+1] == PELINAPPULAT[0][0])):
+                if not ((x > 0 and pelitilanne[y+1][x-1] == PELINAPPULAT[0][0]) or (x < 7 and pelitilanne[y+1][x+1] == PELINAPPULAT[0][0])):
                     isolated_v += 10
                 if y < 7 and pelitilanne[y+1][x] != TYHJA:
                     blocked_v += 20
