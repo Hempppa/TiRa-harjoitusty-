@@ -21,8 +21,8 @@ def matti(pelitilanne, vuoro, edellinen_siirto=(None,None,None,None), peli_id="-
     uusittu = []
     tasapeli = not mahdolliset[vuoro+2]
     for siirto in mahdolliset[vuoro]:
-        poistettu, peli_id = kone_siirto(pelitilanne, siirto, vuoro)
-        if not onko_shakki(pelitilanne, vuoro, siirto, peli_id):
+        poistettu, temp_id = kone_siirto(pelitilanne, siirto, vuoro, peli_id)
+        if not onko_shakki(pelitilanne, vuoro, siirto, temp_id):
             uusittu.append(siirto)
         kone_peru(pelitilanne, siirto, poistettu, vuoro)
     if len(uusittu) == 0:
