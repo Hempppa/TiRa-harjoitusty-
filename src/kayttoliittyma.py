@@ -1,4 +1,4 @@
-l"""Nimensä mukaan käyttöliittymään liittyvä tavara eli pääasiassa tulostaa pelikentän, mutta vastaa myös vuoron vaihtamisesta.
+"""Nimensä mukaan käyttöliittymään liittyvä tavara eli pääasiassa tulostaa pelikentän, mutta vastaa myös vuoron vaihtamisesta.
 Muuten kutsuu vain muita funktioita.
 """
 import time
@@ -81,7 +81,7 @@ def yksinpeli():
 
         if not ala_tulosta:
             print()
-            tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, pelaaja, peli_id)
+            tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, pelaaja, peli_id, edellinen)
             print()
 
             print("Pelaajan", vuoro+1, "vuoro")
@@ -204,7 +204,7 @@ def kaksinpeli():
 
         if not ala_tulosta:
             print()
-            tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, vuoro, peli_id)
+            tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, vuoro, peli_id, edellinen)
             print()
 
             print("Pelaajan", vuoro+1, "vuoro")
@@ -284,7 +284,7 @@ def botti_v_botti():
         peli_id = update_fen(pelitilanne, vuoro, peli_id)
 
         print()
-        tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, 0, peli_id)
+        tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, 0, peli_id, edellinen)
         print()
 
 
@@ -390,7 +390,7 @@ def botti_v_botti():
                 print("Tekoäly rikki!!! Sori, laita palautetta jossain jotenkin, mieluusti pelitilanteen kera")
                 return "quit"
 
-def tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, suunta, peli_id):
+def tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, suunta, peli_id, edellinen):
     """Apufunktio pelikentän tulostamiseen
 
     Args:
@@ -456,5 +456,5 @@ def tulosta_peli(pelitilanne, valkoiset_syoty, mustat_syoty, suunta, peli_id):
         print(vs)
         print(ms)
     print()
-    arvio = arvioi_tilanne(pelitilanne, [], [])
+    arvio = arvioi_tilanne(pelitilanne, edellinen, [], [], peli_id)
     print("Pelikenttä arvio: ", arvio, " (ns. centipawn)")
